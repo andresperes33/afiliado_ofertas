@@ -1686,6 +1686,37 @@ def normaliza_emoji_inicial(texto):
     return '👍 ' + t
 
 
+def remover_emojis_exceto_joinha(texto):
+    if not texto:
+        return texto
+    ph = "__JOINHA__"
+    tmp = texto.replace("👍", ph)
+    tmp = re.sub(
+        r'['
+        '\U0001F600-\U0001F64F'
+        '\U0001F300-\U0001F5FF'
+        '\U0001F680-\U0001F6FF'
+        '\U0001F700-\U0001F77F'
+        '\U0001F780-\U0001F7FF'
+        '\U0001F800-\U0001F8FF'
+        '\U0001F900-\U0001F9FF'
+        '\U0001FA00-\U0001FA6F'
+        '\U0001FA70-\U0001FAFF'
+        '\u2600-\u26FF'
+        '\u2700-\u27BF'
+        '\u2300-\u23FF'
+        '\u2B50\u2B55'
+        '\U0001F004\U0001F0CF'
+        '\U0001F170-\U0001F251'
+        ']+', '', tmp)
+    tmp = re.sub(r'[\uFE0F\u200D\uFE0E]', '', tmp)
+    tmp = tmp.replace(ph, "👍")
+    tmp = re.sub(r'[ \t]+', ' ', tmp)
+    tmp = re.sub(r' *\n *', '\n', tmp)
+    tmp = re.sub(r'\n{3,}', '\n\n', tmp)
+    return tmp.strip()
+
+
 async def process_offer_to_group(bot_app, text, photo=None):
     """
     Processa uma oferta (texto + foto opcional), converte links e posta no grupo.
@@ -1720,6 +1751,7 @@ async def process_offer_to_group(bot_app, text, photo=None):
     # Substitui links do Linktree pelo link personalizado
     modified_text = re.sub(r'https?://linktr\.ee/\S+', 'https://links.andreindica.com.br/', modified_text)
     modified_text = strip_promo_footer(modified_text)
+    modified_text = normaliza_emoji_inicial(modified_text)
 
     has_aliexpress = False
     for link in links:
@@ -1854,17 +1886,15 @@ async def process_offer_to_group(bot_app, text, photo=None):
         final_image_to_send = None
         promo_image = None  # Imagem final (path local ou URL) para salvar no site
 
+        texto_telegram = remover_emojis_exceto_joinha(modified_text)
         if photo:
-            # Se 'photo' for um caminho de arquivo (baixado pelo monitor_offers.py)
-            # O bot do Telegram envia o arquivo local
             await bot.send_photo(
                 chat_id=group_id,
                 photo=photo,
-                caption=modified_text[:1024]
+                caption=texto_telegram[:1024]
             )
-            final_image_to_send = photo  # Guarda o caminho do arquivo para o WhatsApp
+            final_image_to_send = photo
 
-            # Se for um file_id do Telegram (não é path e não é URL), baixa para o disco
             if isinstance(photo, str) and not photo.startswith('http') and not os.path.exists(photo):
                 try:
                     tg_file = await bot.get_file(photo)
@@ -1877,7 +1907,6 @@ async def process_offer_to_group(bot_app, text, photo=None):
             else:
                 promo_image = final_image_to_send
         else:
-            # Tenta buscar info do produto se não tiver foto direto do Telegram
             _, image_url, _ = get_product_info(original_link)
             final_image_to_send = image_url
             promo_image = image_url
@@ -1885,12 +1914,12 @@ async def process_offer_to_group(bot_app, text, photo=None):
                 await bot.send_photo(
                     chat_id=group_id,
                     photo=image_url,
-                    caption=modified_text[:1024]
+                    caption=texto_telegram[:1024]
                 )
             else:
                 await bot.send_message(
                     chat_id=group_id,
-                    text=modified_text,
+                    text=texto_telegram,
                     disable_web_page_preview=False
                 )
         
