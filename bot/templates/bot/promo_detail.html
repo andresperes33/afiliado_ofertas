@@ -3,7 +3,7 @@
 {% load urlize_blank %}
 
 {% block title %}{{ promo.titulo }} | Nitro Ofertas{% endblock %}
-{% block description %}{{ promo.titulo }} — {{ promo.preco }}. Promoção sempre atualizada.{% endblock %}
+{% block description %}{{ promo.titulo }} — Promoção sempre atualizada. Confira os detalhes no anúncio.{% endblock %}
 
 {% block nav_promos %}active{% endblock %}
 
@@ -12,13 +12,13 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ SITE_URL }}{% url 'promo_detail' promo.pk %}">
 <meta property="og:title" content="{{ promo.titulo }}">
-<meta property="og:description" content="{{ promo.preco }} — Promoção sempre atualizada.">
+<meta property="og:description" content="Promoção sempre atualizada. Confira os detalhes no anúncio.">
 {% if promo.imagem_url %}<meta property="og:image" content="{{ promo.imagem_url }}">{% endif %}
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content="{{ SITE_URL }}{% url 'promo_detail' promo.pk %}">
 <meta property="twitter:title" content="{{ promo.titulo }}">
-<meta property="twitter:description" content="{{ promo.preco }} — Promoção imperdível.">
+<meta property="twitter:description" content="Promoção imperdível. Confira os detalhes no anúncio.">
 {% if promo.imagem_url %}<meta property="twitter:image" content="{{ promo.imagem_url }}">{% endif %}
 {% endblock %}
 
@@ -62,24 +62,7 @@
 
     <div class="detail-info">
         <div class="card">
-            {% if promo.preco %}
-            <div>
-                <span class="detail-label">Preço</span>
-                <div class="detail-price">{{ promo.preco|preco_completo }}</div>
-            </div>
-            {% endif %}
-
-            {% if promo.cupom %}
-            <div>
-                <span class="detail-label">Cupom de desconto</span>
-                <div class="detail-cupom-row">
-                    <code>{{ promo.cupom }}</code>
-                    <button class="copy-btn" onclick="copiarCupom(this, '{{ promo.cupom|escapejs }}')" aria-label="Copiar cupom"><i class="fas fa-copy"></i></button>
-                </div>
-            </div>
-            {% endif %}
-
-            <div class="detail-label">Compre nos links abaixo:</div>
+            <div class="detail-label" style="font-size:1.05rem; color:var(--primary);"><i class="fas fa-info-circle"></i> Leia o anúncio abaixo para ver o preço e os detalhes da oferta.</div>
         </div>
 
         <div class="card">
