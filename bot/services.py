@@ -44,7 +44,7 @@ def _normalizar_url(url):
     return url.lower()
 
 
-def cortar_rodape_imagem(caminho, rodape_px=10):
+def cortar_rodape_imagem(caminho, rodape_px=100):
     """
     Corta `rodape_px` pixels da base da imagem (rodapé/crédito da postagem).
     Edita o arquivo in-place. Se algo falhar, mantém a imagem original.
