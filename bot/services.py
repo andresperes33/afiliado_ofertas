@@ -1223,33 +1223,31 @@ def convert_mercado_livre_link(url):
         hdrs["Cookie"] = ml_cookie
 
     try:
+        # 1. Expande o link (meli.la → página que contém MLB/redirect)
         r = requests.get(url, allow_redirects=True, timeout=12, headers=hdrs)
         page_html = r.text
-        final_url = r.url
-        if '/social/' in final_url:
-            try:
-                parsed = urllib.parse.urlparse(final_url)
-                qs = dict(urllib.parse.parse_qsl(parsed.query, keep_blank_values=True))
-                qs['matt_word'] = tag
-                qs['matt_tool'] = str(matt_tool)
-                new_qs = urllib.parse.urlencode(qs)
-                affiliate_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_qs, parsed.fragment))
-                print(f"ML Afiliado (social): {affiliate_url[:130]}...")
-                return affiliate_url
-            except Exception as social_err:
-                print(f"ML social mutate falhou: {social_err}")
+
+        # 2. Extrai URL do produto real no HTML da página
         import re as _re
-        unesc = page_html.replace('\\u002F', '/').replace('\\u0022', '"')
-        prod_urls = _re.findall(r'https://www\.mercadolivre\.com\.br/[^"<\s]+/p/MLB\d+', unesc)
+        prod_urls = _re.findall(
+            r'https://www\.mercadolivre\.com\.br/[^"<>\s]+/p/MLB\d+',
+            page_html,
+        )
+
         if prod_urls:
+            # Pega o primeiro produto e limpa parâmetros extras
             produto_url = prod_urls[0].split('?')[0].split('#')[0]
             affiliate_url = f"{produto_url}?matt_tool={matt_tool}&matt_word={tag}"
+
+            # --- Encurtamento meli.la via API Interna ---
             if ml_cookie:
                 try:
                     short_api_url = "https://www.mercadolivre.com.br/afiliados/api/v2/partners/social-links"
                     short_hdrs = hdrs.copy()
                     short_hdrs["Content-Type"] = "application/json"
-                    short_resp = requests.post(short_api_url, headers=short_hdrs, json={"source_url": affiliate_url}, timeout=8)
+                    short_payload = {"source_url": affiliate_url}
+
+                    short_resp = requests.post(short_api_url, headers=short_hdrs, json=short_payload, timeout=8)
                     if short_resp.status_code in (200, 201):
                         short_url = short_resp.json().get('short_url')
                         if short_url:
@@ -1257,38 +1255,18 @@ def convert_mercado_livre_link(url):
                             return short_url
                 except Exception as short_err:
                     print(f"ML Shortener Erro: {short_err}")
-            print(f"ML Afiliado (produto): {affiliate_url[:110]}...")
+
+            print(f"ML Afiliado (produto): {affiliate_url[:100]}...")
             return affiliate_url
-        fallback = _re.findall(r'https://www\.mercadolivre\.com\.br/[^"<\s]+?/(?:p/MLB\d+|up/MLBU\d+)', unesc)
-        if not fallback:
-            fallback = ['https://' + u for u in _re.findall(r'www\.mercadolivre\.com\.br/[^"<\s]+?/(?:p/MLB\d+|up/MLBU\d+)', unesc)]
-        if fallback:
-            produto_url = fallback[0].split('?')[0].split('#')[0]
-            affiliate_url = f"{produto_url}?matt_tool={matt_tool}&matt_word={tag}"
-            if ml_cookie:
-                try:
-                    short_api_url = "https://www.mercadolivre.com.br/afiliados/api/v2/partners/social-links"
-                    short_hdrs = hdrs.copy()
-                    short_hdrs["Content-Type"] = "application/json"
-                    short_resp = requests.post(short_api_url, headers=short_hdrs, json={"source_url": affiliate_url}, timeout=8)
-                    if short_resp.status_code in (200, 201):
-                        short_url = short_resp.json().get('short_url')
-                        if short_url:
-                            print(f"ML Curto (meli.la): {short_url}")
-                            return short_url
-                except Exception as short_err:
-                    print(f"ML Shortener Erro: {short_err}")
-            print(f"ML Afiliado (produto): {affiliate_url[:110]}...")
-            return affiliate_url
-        mlb_ids = list(dict.fromkeys(_re.findall(r'MLB\d+', page_html)))
-        if len(mlb_ids) == 1:
+
+        # Fallback: tenta pegar pelo ID MLB
+        mlb_ids = list(set(_re.findall(r'MLB\d+', page_html)))
+        if mlb_ids:
             mlb_id = mlb_ids[0]
             affiliate_url = f"https://www.mercadolivre.com.br/p/{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
-            print(f"ML Afiliado (MLB unico): {affiliate_url}")
+            print(f"ML Afiliado (MLB ID): {affiliate_url}")
             return affiliate_url
-        elif mlb_ids:
-            print(f"ML: multiplos MLB sem slug ({mlb_ids[:3]}) — ignorando para evitar link invalido")
-            return None
+
         print("ML: Nenhum produto encontrado na página.")
         return None
 
