@@ -206,4 +206,4 @@ IG_USER_ID = os.getenv('IG_USER_ID')
 # conta separa token e user_id por '|'.
 IG_ACCOUNTS_EXTRA = os.getenv('IG_ACCOUNTS_EXTRA', '')
 # URL pública da aplicação (usada para montar links absolutos fora do contexto HTTP)
-SITE_URL = os.getenv('SITE_URL', '')
+SITE_URL = (os.getenv('SITE_URL', '') or '').strip() or 'https://www.nitroofertas.store'
