@@ -15,12 +15,8 @@ _RODAPE_CANAIS_TEXTO = ""
 _RODAPE_CANAIS_HTML = """
 <div class="detail-channels">
     <div class="detail-label">📲 Canais da Nitro Ofertas</div>
-    <a href="https://t.me/Nitro_Tech_1" target="_blank" rel="noopener">📢 Grupo no Telegram</a>
-    <a href="https://chat.whatsapp.com/Jxjt68Mfr9J4tx1vIS82DD" target="_blank" rel="noopener">💬 Grupo no WhatsApp</a>
-    <a href="https://t.me/alertas_andre_bot" target="_blank" rel="noopener">🤖 Bot Nitro Ofertas</a>
-    <a href="https://www.nitroofertas.store" target="_blank" rel="noopener">🌐 Site / App</a>
-    <a href="https://www.instagram.com/nitro_tech_brasil/" target="_blank" rel="noopener">📸 Instagram</a>
-    <a href="https://www.tiktok.com/@nitroofertas.store" target="_blank" rel="noopener">🎵 TikTok</a>
+    <a href="https://t.me/nitroofertasgerais" target="_blank" rel="noopener">📢 Grupo no Telegram</a>
+    <a href="https://www.instagram.com/nitro.ofertas.br/" target="_blank" rel="noopener">📸 Instagram</a>
 </div>
 """
 
