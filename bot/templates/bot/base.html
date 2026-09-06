@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Nitro Ofertas — Promoções de Tech{% endblock %}</title>
+    <title>{% block title %}Nitro Ofertas — Promoções em geral{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="{% static 'bot/favicon.svg' %}">
     <link rel="icon" type="image/png" href="{% static 'bot/favicon.png' %}">
     <link rel="manifest" href="{% static 'bot/manifest.json' %}">
@@ -14,20 +14,20 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Nitro Ofertas">
     <link rel="apple-touch-icon" href="{% static 'bot/icon-192.png' %}">
-    <meta name="description" content="{% block description %}As melhores promoções de tecnologia encontradas pelo bot Nitro Ofertas. SSD, placa de vídeo, notebooks e muito mais com cupons e links de afiliado.{% endblock %}">
+    <meta name="description" content="{% block description %}Encontro ofertas de tudo um pouco — promoções, achadinhos e descontos reais. Tudo com foto, link e cupom, atualizado 24h por dia.{% endblock %}">
     
     {% block og_meta %}
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ SITE_URL }}/">
-    <meta property="og:title" content="Nitro Ofertas — Promoções de Tech">
-    <meta property="og:description" content="As melhores ofertas de hardware e tecnologia monitoradas 24h por dia.">
+    <meta property="og:title" content="Nitro Ofertas — Promoções em geral">
+    <meta property="og:description" content="Encontro ofertas de tudo um pouco — promoções, achadinhos e descontos reais.">
     <meta property="og:image" content="{{ SITE_URL }}{% static 'bot/favicon-og.png' %}">
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ SITE_URL }}/">
-    <meta property="twitter:title" content="Nitro Ofertas — Promoções de Tech">
-    <meta property="twitter:description" content="As melhores ofertas de hardware e tecnologia monitoradas 24h por dia.">
+    <meta property="twitter:title" content="Nitro Ofertas — Promoções em geral">
+    <meta property="twitter:description" content="Encontro ofertas de tudo um pouco — promoções, achadinhos e descontos reais.">
     <meta property="twitter:image" content="{{ SITE_URL }}{% static 'bot/favicon-og.png' %}">
     {% endblock %}
 
@@ -103,7 +103,7 @@
     <div class="footer-inner">
         <div>
             <div class="footer-brand">Nitro<strong>Ofertas</strong></div>
-            <p class="footer-desc">Promoções de tecnologia atualizadas em tempo real, publicadas no Telegram, WhatsApp e aqui no site.</p>
+            <p class="footer-desc">Encontro ofertas de tudo um pouco — promoções, achadinhos e descontos reais, atualizadas 24h por dia.</p>
         </div>
         <div>
             <div class="footer-heading">Ofertas</div>
