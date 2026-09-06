@@ -23,7 +23,7 @@ def send_alerts_site(offer_text: str, photo_path=None):
     if not alertas.exists():
         return
 
-    site_link = getattr(settings, 'SITE_URL', 'https://www.nitrotech.store')
+    site_link = getattr(settings, 'SITE_URL', 'https://www.nitroofertas.store')
 
     for alerta in alertas:
         try:

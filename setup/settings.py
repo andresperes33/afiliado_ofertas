@@ -39,7 +39,7 @@ ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 CSRF_TRUSTED_ORIGINS = [
     o.strip() for o in os.getenv(
         'CSRF_TRUSTED_ORIGINS',
-        'https://www.nitrotech.store,https://nitrotech.store'
+        'https://www.nitroofertas.store,https://nitroofertas.store'
     ).split(',') if o.strip()
 ]
 
