@@ -1252,22 +1252,13 @@ def convert_mercado_livre_link(url):
                 unesc = r.text.replace('\\u002F', '/').replace('\\u0022', '"')
                 import re as _re
 
-                # Busca URLs com slug (decodificadas) — tenta /p/MLB primeiro, depois /up/MLBU
-                first_p = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/p/MLB(\d+)', unesc)
-                if first_p:
-                    slug = first_p.group(1)
-                    mlb_id = first_p.group(2)
-                    affiliate_url = f"https://www.mercadolivre.com.br/{slug}/p/MLB{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
-                    print(f"ML Afiliado (meli.la /p/MLB): {affiliate_url[:130]}...")
-                    return affiliate_url
-
-                # Fallback: /up/MLBU
-                first_up = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/up/MLBU(\d+)', unesc)
-                if first_up:
-                    slug = first_up.group(1)
-                    mlbu_id = first_up.group(2)
-                    affiliate_url = f"https://www.mercadolivre.com.br/{slug}/up/MLBU{mlbu_id}?matt_tool={matt_tool}&matt_word={tag}"
-                    print(f"ML Afiliado (meli.la /up/MLBU): {affiliate_url[:130]}...")
+                # Busca primeira URL com slug (qualquer formato: /p/MLB ou /up/MLBU)
+                first_match = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/((?:p/MLB|up/MLBU)(\d+))', unesc)
+                if first_match:
+                    slug = first_match.group(1)
+                    item_path = first_match.group(2)
+                    affiliate_url = f"https://www.mercadolivre.com.br/{slug}/{item_path}?matt_tool={matt_tool}&matt_word={tag}"
+                    print(f"ML Afiliado (meli.la slug): {affiliate_url[:130]}...")
                     return affiliate_url
                 # Fallback: muta matt na URL social
                 try:
