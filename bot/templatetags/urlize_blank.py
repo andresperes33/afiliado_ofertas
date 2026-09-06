@@ -146,3 +146,27 @@ def preco_completo(value):
         return num
 
     return _PRECO_LIMPO_RE.sub(lambda m: m.group(1) + _fix(m.group(2)), value)
+
+
+_BTN_STYLE = (
+    'display:block; text-align:center; margin:14px 0; padding:14px 24px; '
+    'background:#76b900; color:#fff; font-weight:700; font-size:1.05rem; '
+    'border-radius:10px; text-decoration:none;'
+)
+
+_ML_LINK_RE = re.compile(
+    r'<a\s+href="(https?://(?:www\.)?mercadolivre\.com\.br/[^"]*(?:matt_tool|matt_word)[^"]*)"[^>]*>.*?</a>',
+    re.IGNORECASE | re.DOTALL,
+)
+
+
+@register.filter(is_safe=True)
+def ml_button(value):
+    """Substitui links de afiliado ML por botão 'Ver oferta'."""
+    if not value:
+        return ''
+    return mark_safe(_ML_LINK_RE.sub(
+        rf'<a href="\1" target="_blank" rel="nofollow sponsored" style="{_BTN_STYLE}">'
+        r'<i class="fas fa-shopping-cart"></i> Ver oferta</a>',
+        value,
+    ))
