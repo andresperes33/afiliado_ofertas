@@ -2,8 +2,8 @@
 {% load static %}
 {% load urlize_blank %}
 
-{% block title %}{{ promo.titulo }} | Nitro Tech{% endblock %}
-{% block description %}{{ promo.titulo }} — {{ promo.preco }}. Promoção de {{ promo.get_categoria_display }} sempre atualizada.{% endblock %}
+{% block title %}{{ promo.titulo }} | Nitro Ofertas{% endblock %}
+{% block description %}{{ promo.titulo }} — {{ promo.preco }}. Promoção sempre atualizada.{% endblock %}
 
 {% block nav_promos %}active{% endblock %}
 
@@ -12,13 +12,13 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ SITE_URL }}{% url 'promo_detail' promo.pk %}">
 <meta property="og:title" content="{{ promo.titulo }}">
-<meta property="og:description" content="{{ promo.preco }} — Promoção de {{ promo.get_categoria_display }} sempre atualizada.">
+<meta property="og:description" content="{{ promo.preco }} — Promoção sempre atualizada.">
 {% if promo.imagem_url %}<meta property="og:image" content="{{ promo.imagem_url }}">{% endif %}
 <!-- Twitter -->
 <meta property="twitter:card" content="summary_large_image">
 <meta property="twitter:url" content="{{ SITE_URL }}{% url 'promo_detail' promo.pk %}">
 <meta property="twitter:title" content="{{ promo.titulo }}">
-<meta property="twitter:description" content="{{ promo.preco }} — Promoção de {{ promo.get_categoria_display }}.">
+<meta property="twitter:description" content="{{ promo.preco }} — Promoção imperdível.">
 {% if promo.imagem_url %}<meta property="twitter:image" content="{{ promo.imagem_url }}">{% endif %}
 {% endblock %}
 
@@ -29,7 +29,7 @@
         <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
         <a href="/promos/">Promoções</a>
         <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-        <span class="breadcrumb-current">{{ promo.get_categoria_display }}</span>
+        <span class="breadcrumb-current">Oferta</span>
     </div>
 </div>
 {% endblock %}
@@ -39,9 +39,6 @@
 <div class="detail-hero">
     <span class="corner-square"></span>
     <div class="detail-hero-inner">
-        <div class="detail-eyebrow">
-            <span class="badge-tag" style="background:var(--primary);color:var(--on-primary);">{{ promo.get_categoria_display }}</span>
-        </div>
         <h1 class="detail-title">{{ promo.titulo }}</h1>
         <div class="detail-actions">
             <a href="https://t.me/Nitro_Tech_1" target="_blank" class="btn btn-outline-on-dark"><i class="fab fa-telegram-plane"></i> Acompanhar no Telegram</a>
@@ -144,7 +141,7 @@
                     {% else %}
                         <div class="no-img"><i class="fas fa-tag"></i></div>
                     {% endif %}
-                    <span class="badge-tag card-badge">{{ promo.get_categoria_display }}</span>
+
                 </div>
                 <div class="card-body">
                     <h3 class="card-title">{{ promo.titulo|truncatechars:50 }}</h3>

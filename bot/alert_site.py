@@ -35,9 +35,9 @@ def send_alerts_site(offer_text: str, photo_path=None):
                 continue
 
             mensagem = (
-                f"🔔 *Nitro Tech Alerta*\n"
+                f"🔔 *Nitro Ofertas Alerta*\n"
                 f"━━━━━━━━━━━━━━━━━━\n"
-                f"{alerta.nome or 'Olá'}, o Nitro Tech Alerta acabou de encontrar o seu produto "
+                f"{alerta.nome or 'Olá'}, o Nitro Ofertas Alerta acabou de encontrar o seu produto "
                 f"*{alerta.keyword}*!\n\n"
                 f"*Aqui está a oferta:*\n\n"
                 f"{offer_text}\n\n"

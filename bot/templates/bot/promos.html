@@ -1,14 +1,14 @@
 {% extends 'bot/base.html' %}
 {% load static %}
 
-{% block title %}Promoções de Tech | Nitro Tech{% endblock %}
+{% block title %}Promoções | Nitro Ofertas{% endblock %}
 
 {% block breadcrumb %}
 <div class="breadcrumb-bar">
     <div class="breadcrumb-inner">
         <a href="/promos/">Início</a>
         <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-        <span class="breadcrumb-current">Promoções de Tech</span>
+        <span class="breadcrumb-current">Promoções</span>
     </div>
 </div>
 {% endblock %}
@@ -19,12 +19,10 @@
     <span class="corner-square"></span>
     <div class="hero-inner">
         <span class="hero-eyebrow">Monitoramento em tempo real</span>
-        <h1 class="hero-title">Promoções de Tech</h1>
-        <p class="hero-sub">Eu reúno as melhores ofertas e trago pra você aqui no site, com foto, link e cupom. SSD, placa de vídeo, notebook e muito mais — 24 horas por dia. Você acompanha tudo de onde estiver.</p>
+        <h1 class="hero-title">Nitro Ofertas</h1>
+        <p class="hero-sub">As melhores ofertas reunidas aqui com foto, link e cupom. Hardware, periféricos e muito mais — 24 horas por dia.</p>
         <div class="hero-actions">
             <a href="#grid" class="btn btn-primary">Ver ofertas <i class="fas fa-arrow-down"></i></a>
-            {% if artigos_blog %}<a href="#blog" class="btn btn-primary">Ver Blog <i class="fas fa-arrow-down"></i></a>{% endif %}
-            <a href="#avisos" class="btn btn-primary">Ver Eventos <i class="fas fa-arrow-down"></i></a>
         </div>
         <div class="hero-tag"><i class="fas fa-circle-check"></i> Toda promo aqui tem foto, link e cupom</div>
     </div>
@@ -41,15 +39,6 @@
                 <option value="tudo" {% if periodo == 'tudo' %}selected{% endif %}>Tudo</option>
             </select>
         </div>
-        <div class="filter-group">
-            <span class="filter-label">Categoria</span>
-            <select id="filtro-categoria" class="filter-select">
-                <option value="" {% if not categoria_ativa %}selected{% endif %}>Todas</option>
-                {% for slug, nome in categorias %}
-                <option value="{{ slug }}" {% if categoria_ativa == slug %}selected{% endif %}>{{ nome }}</option>
-                {% endfor %}
-            </select>
-        </div>
         {% if lojas %}
         <div class="filter-group">
             <span class="filter-label">Loja</span>
@@ -63,7 +52,6 @@
         {% endif %}
         <form class="search-form" method="get" action="/promos/">
             {% if periodo != 'hoje' %}<input type="hidden" name="periodo" value="{{ periodo }}">{% endif %}
-            {% if categoria_ativa %}<input type="hidden" name="cat" value="{{ categoria_ativa }}">{% endif %}
             <input class="search-input" type="text" name="q" placeholder="Buscar promoção..." value="{{ q }}">
             <button class="btn-search" type="submit" aria-label="Buscar"><i class="fas fa-search"></i></button>
         </form>
@@ -95,63 +83,11 @@
 <div class="empty">
     <div class="empty-icon"><i class="fas fa-magnifying-glass"></i></div>
     <h2>Nenhuma oferta encontrada</h2>
-    <p>Tente mudar o período ou a categoria. Novas ofertas aparecem aqui em breve!</p>
+    <p>Tente mudar o período ou a busca. Novas ofertas aparecem aqui em breve!</p>
     <a href="/promos/" class="btn btn-primary">Ver todas as ofertas</a>
 </div>
 {% endif %}
 </div>
-
-{% if artigos_blog %}
-<section class="section" id="blog">
-    <div class="container">
-        <div class="section-head">
-            <div>
-                <div class="section-eyebrow">Blog do Nitro Tech</div>
-                <h2 class="section-title xl">Leia nossos guias</h2>
-            </div>
-            <a href="{% url 'blog' %}" class="btn-ghost">Ver todos <i class="fas fa-arrow-right arrow"></i></a>
-        </div>
-        <div class="blog-grid">
-            {% for artigo in artigos_blog %}
-            <a href="{% url 'blog_artigo' artigo.slug %}" class="blog-card" style="color:inherit;text-decoration:none;">
-                {% if artigo.imagem %}
-                <div class="blog-card-thumb">
-                    <img src="{{ artigo.imagem.url }}" alt="{{ artigo.titulo }}" loading="lazy">
-                </div>
-                {% endif %}
-                <div class="blog-card-body">
-                    <h3 class="blog-card-title">{{ artigo.titulo }}</h3>
-                    <span class="blog-card-date">{{ artigo.atualizado_em|date:"d/m/Y" }}</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-{% include 'bot/_evento_destaque.html' %}
-
-{% if not categoria_ativa %}
-<section class="section" style="padding-top:32px;">
-    <div class="container">
-        <div class="section-head">
-            <div>
-                <div class="section-eyebrow">Guia de categorias</div>
-                <h2 class="section-title xl">O que você encontra aqui</h2>
-            </div>
-        </div>
-        <div class="cat-guide-grid">
-            {% for item in categorias_guia %}
-            <div class="cat-guide-card">
-                <h3 class="cat-guide-title">{{ item.nome }}</h3>
-                <p class="cat-guide-text">{{ item.desc }}</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
 
 {% endblock %}
 
@@ -172,14 +108,9 @@
         });
     }
 
-    // ─── Filtros AJAX: troca o conteúdo sem recarregar a página ───
     (function () {
         const wrapper = document.getElementById('resultado');
         if (!wrapper) return;
-
-        function urlAtual() {
-            return window.location.pathname + window.location.search;
-        }
 
         async function carregar(url) {
             try {
@@ -193,34 +124,23 @@
                     wrapper.innerHTML = novoResultado.innerHTML;
                     document.getElementById('filters').innerHTML = novosFiltros.innerHTML;
                     history.replaceState(null, '', url.split('#')[0]);
-                    // mantém o scroll onde o usuário está
                     const top = document.getElementById('filters').getBoundingClientRect().top + window.scrollY;
                     window.scrollTo({ top: top - 70, behavior: 'smooth' });
                 }
-            } catch (e) { /* mantém comportamento normal */ }
+            } catch (e) { }
         }
 
-        document.addEventListener('click', function (e) {
-            const link = e.target.closest('a[data-filtro]');
-            if (!link) return;
-            e.preventDefault();
-            carregar(link.getAttribute('href'));
-        });
-
-        // ─── Dropdowns (período/categoria/loja): recarrega ao mudar ───
         document.addEventListener('change', function (e) {
             if (!e.target || !e.target.classList || !e.target.classList.contains('filter-select')) return;
             const periodo = document.getElementById('filtro-periodo');
-            const cat = document.getElementById('filtro-categoria');
             const loja = document.getElementById('filtro-loja');
             const params = new URLSearchParams(window.location.search);
             params.set('periodo', periodo ? periodo.value : 'hoje');
-            if (cat && cat.value) { params.set('cat', cat.value); } else { params.delete('cat'); }
             if (loja && loja.value) { params.set('loja', loja.value); } else { params.delete('loja'); }
+            params.delete('cat');
             carregar('/promos/?' + params.toString() + '#grid');
         });
 
-        // ─── "Ver mais promoções": carrega os próximos cards via AJAX ───
         document.addEventListener('click', async function (e) {
             const btn = e.target.closest('#btn-ver-mais');
             if (!btn) return;
@@ -247,7 +167,7 @@
                         return;
                     }
                 }
-            } catch (err) { /* mantém o botão ativo */ }
+            } catch (err) { }
             btn.innerHTML = original;
             btn.disabled = false;
         });
@@ -262,7 +182,6 @@
         }
     })();
 
-    // Auto-refresh a cada 1 minuto quando estiver na aba "Hoje"
     {% if periodo == 'hoje' %}
     setTimeout(() => location.reload(), 1 * 60 * 1000);
     {% endif %}
