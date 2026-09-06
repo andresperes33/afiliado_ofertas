@@ -8,17 +8,8 @@ import unicodedata
 import requests
 from django.conf import settings
 
-# Rodapé de canais anexado às promoções (Telegram/WhatsApp/site). Em texto puro.
-_RODAPE_CANAIS_TEXTO = (
-    "\n\n"
-    "📲 Canais da Nitro Ofertas:\n"
-    "📢 Telegram: https://t.me/Nitro_Tech_1\n"
-    "💬 WhatsApp: https://chat.whatsapp.com/Jxjt68Mfr9J4tx1vIS82DD\n"
-    "🤖 Bot: https://t.me/alertas_andre_bot\n"
-    "🌐 Site: https://www.nitrotech.store\n"
-    "📸 Instagram: https://www.instagram.com/nitro_tech_brasil/\n"
-    "🎵 TikTok: https://www.tiktok.com/@nitrotech.store"
-)
+# Rodapé de canais — desativado (removido das mensagens do Telegram/WhatsApp).
+_RODAPE_CANAIS_TEXTO = ""
 
 # Mesmo rodapé em HTML, com links clicáveis (usado na página do produto).
 _RODAPE_CANAIS_HTML = """
