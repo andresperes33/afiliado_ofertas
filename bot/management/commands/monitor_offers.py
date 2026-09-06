@@ -87,7 +87,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         api_id = getattr(settings, 'TELEGRAM_API_ID', None)
         api_hash = getattr(settings, 'TELEGRAM_API_HASH', None)
-        group_id = int(getattr(settings, 'TELEGRAM_GROUP_ID', 0))
+        raw_gid = str(getattr(settings, 'TELEGRAM_GROUP_ID', '') or '').strip()
+        try:
+            group_id = int(raw_gid) if raw_gid and raw_gid != '-' else 0
+        except ValueError:
+            logger.error(f"❌ TELEGRAM_GROUP_ID invalido: '{raw_gid}'. Configure com o ID numerico (ex: -1004402297821).")
+            group_id = 0
 
         async def main():
             string_session = getattr(settings, 'TELEGRAM_STRING_SESSION', None)
@@ -105,16 +110,32 @@ class Command(BaseCommand):
 
             logger.info(f"🔍 Localizando ID do canal {source_channel}...")
             target_id = None
-            async for dialog in client.iter_dialogs():
-                dialog_name = (dialog.name or '').casefold()
-                dialog_username = (getattr(dialog, 'username', None) or '').casefold()
-                if source_channel_norm in dialog_name or source_channel_norm == dialog_username:
-                    target_id = dialog.id
-                    logger.info(f"✅ CANAL ENCONTRADO: {dialog.name} (ID: {target_id})")
-                    break
+            try:
+                ent = await client.get_entity(source_channel)
+                target_id = ent.id if hasattr(ent, 'id') else None
+                if target_id:
+                    logger.info(f"✅ CANAL ENCONTRADO (get_entity): {getattr(ent, 'title', source_channel)} (ID: {target_id})")
+            except Exception as ge:
+                logger.info(f"get_entity falhou para '{source_channel}': {ge} — tentando iter_dialogs...")
+            if not target_id:
+                clean = source_channel.lstrip('@').casefold().strip()
+                async for dialog in client.iter_dialogs():
+                    dialog_name = (dialog.name or '').casefold()
+                    ent = dialog.entity
+                    dialog_username = (getattr(ent, 'username', None) or '').casefold() if ent else ''
+                    if clean and (clean == dialog_username or clean in dialog_name or source_channel_norm in dialog_name):
+                        target_id = dialog.id
+                        logger.info(f"✅ CANAL ENCONTRADO: {dialog.name} (ID: {target_id})")
+                        break
 
             if not target_id:
                 logger.warning(f"⚠️ Canal não encontrado: {source_channel}. Verifique o valor de SOURCE_CHANNEL_USERNAME (pode ser o @username OU o nome exato do canal).")
+                c = 0
+                async for d in client.iter_dialogs():
+                    if c >= 8:
+                        break
+                    logger.info(f"  - dialog: {d.name} | id={d.id} | username={getattr(getattr(d, 'entity', None), 'username', None)}")
+                    c += 1
                 return
 
             # ─── COLD START: banco vazio, pular histórico ─────────────────────

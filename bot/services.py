@@ -1877,9 +1877,14 @@ async def process_offer_to_group(bot_app, text, photo=None):
             f"Se o produto não aparecer, clique em 'DO BRASIL'."
         )
 
-    group_id = settings.TELEGRAM_GROUP_ID
-    if not group_id:
+    raw_gid = str(getattr(settings, 'TELEGRAM_GROUP_ID', '') or '').strip()
+    if not raw_gid or raw_gid == '-':
         print("Erro: TELEGRAM_GROUP_ID não configurado.")
+        return False
+    try:
+        group_id = int(raw_gid)
+    except ValueError:
+        print(f"Erro: TELEGRAM_GROUP_ID invalido: '{raw_gid}'.")
         return False
 
     try:
