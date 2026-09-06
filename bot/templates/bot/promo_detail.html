@@ -63,16 +63,16 @@
     <div class="detail-info">
         <div class="card">
             <div class="detail-label" style="font-size:1.05rem; color:var(--primary);"><i class="fas fa-info-circle"></i> Confira todos os detalhes da oferta 👇</div>
-            {% if promo.link_afiliado %}
-            <a href="{{ promo.link_afiliado }}" target="_blank" rel="nofollow sponsored" class="btn-cta" style="display:block; text-align:center; margin-top:12px; padding:14px 24px; background:var(--primary); color:#fff; font-weight:700; font-size:1.1rem; border-radius:10px; text-decoration:none;">
-                <i class="fas fa-shopping-cart"></i> Ver oferta
-            </a>
-            {% endif %}
         </div>
 
         <div class="card">
             <span class="detail-label">Postagem original</span>
             <div class="detail-text">{{ promo.texto_original|preco_completo|urlize_blank|destacar_valores|linebreaksbr }}</div>
+            {% if promo.link_afiliado %}
+            <a href="{{ promo.link_afiliado }}" target="_blank" rel="nofollow sponsored" style="display:block; text-align:center; margin-top:16px; padding:14px 24px; background:var(--primary); color:#fff; font-weight:700; font-size:1.1rem; border-radius:10px; text-decoration:none;">
+                <i class="fas fa-shopping-cart"></i> Ver oferta
+            </a>
+            {% endif %}
             {{ rodape_canais|safe }}
         </div>
 
