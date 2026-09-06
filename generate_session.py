@@ -4,8 +4,8 @@ from telethon import TelegramClient
 from telethon.sessions import StringSession
 
 # Configurações do seu app (já preenchidas com seus dados)
-API_ID = 38406719
-API_HASH = 'aec41e4ed48d59ba62816f01798be347'
+API_ID = 31571634
+API_HASH = '4a09cb058efdb957d27126ac894e64d1'
 
 async def main():
     print("\n🚀 INICIANDO GERADOR DE SESSÃO PERSISTENTE")
