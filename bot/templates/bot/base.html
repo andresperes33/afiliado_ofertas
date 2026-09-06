@@ -68,25 +68,6 @@
                 <span class="brand-mark"></span>
                 <span class="brand-name">Nitro<strong>Ofertas</strong></span>
             </a>
-            <div class="nav-links" id="navLinks">
-                <a href="/promos/" class="nav-link {% block nav_promos %}active{% endblock %}">Promoções</a>
-                <a href="{% url 'sobre' %}" class="nav-link">Sobre</a>
-                <a href="{% url 'contato' %}" class="nav-link">Contato</a>
-            </div>
-            <div class="nav-actions">
-                <button type="button" class="nav-burger" id="navBurger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
-                    <span class="burger-bar"></span>
-                    <span class="burger-bar"></span>
-                    <span class="burger-bar"></span>
-                </button>
-            </div>
-        </div>
-        <div class="mobile-menu" id="mobileMenu">
-            <div class="mobile-menu-inner">
-                <a href="/promos/" class="mobile-link {% block nav_promos_mobile %}active{% endblock %}"><i class="fas fa-store"></i> Promoções</a>
-                <a href="{% url 'sobre' %}" class="mobile-link"><i class="fas fa-info-circle"></i> Sobre</a>
-                <a href="{% url 'contato' %}" class="mobile-link"><i class="fas fa-envelope"></i> Contato</a>
-            </div>
         </div>
     </nav>
 </header>
