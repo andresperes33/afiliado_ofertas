@@ -147,12 +147,19 @@ class Command(BaseCommand):
             # Também resetamos o last_id quando trocamos de canal monitorado:
             # o último_id salvo pode vir do canal ANTERIOR e ser maior que os IDs
             # do canal atual, fazendo o polling pular todas as ofertas novas.
-            saved_channel = (await _db_get_channel() or '').strip().casefold()
+            try:
+                saved_channel = (await _db_get_channel() or '').strip().casefold()
+            except Exception as e:
+                logger.warning(f"⚠️ BotConfig ainda não existe ({e}) — ignorando cache de canal por enquanto.")
+                saved_channel = ''
             if saved_channel and saved_channel != source_channel_norm:
                 logger.info(f"🔄 Canal mudou ('{saved_channel}' -> '{source_channel_norm}'). Resetando last_id.")
                 await save_last_id(0)
                 await load_last_id()
-                await _db_set_channel(source_channel)
+                try:
+                    await _db_set_channel(source_channel)
+                except Exception:
+                    pass
 
             latest = await client.get_messages(target_id, limit=1)
             current_last = await load_last_id()
@@ -170,11 +177,10 @@ class Command(BaseCommand):
                 except Exception as cold_err:
                     logger.error(f"❌ Erro no cold start: {cold_err}")
 
-            # Persiste o canal monitorado para detectar trocas futuras
             try:
                 await _db_set_channel(source_channel)
             except Exception as ch_err:
-                logger.error(f"❌ Erro ao salvar canal monitorado: {ch_err}")
+                logger.warning(f"⚠️ Não foi possível salvar canal monitorado (tabela ainda não existe?): {ch_err}")
 
             async def process_message(message):
                 """Converte links e envia para Telegram + WhatsApp"""
