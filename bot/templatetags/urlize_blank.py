@@ -155,7 +155,7 @@ _BTN_STYLE = (
 )
 
 _ML_LINK_RE = re.compile(
-    r'<a\s+href="(https?://(?:www\.)?mercadolivre\.com\.br/[^"]*(?:matt_tool|matt_word)[^"]*)"[^>]*>.*?</a>',
+    r'<a\s+href="(https?://(?:www\.)?(?:mercadolivre\.com\.br|amazon\.com\.br)/[^"]*(?:matt_tool|matt_word|tag=)[^"]*)"[^>]*>.*?</a>',
     re.IGNORECASE | re.DOTALL,
 )
 
