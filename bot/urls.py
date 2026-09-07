@@ -13,6 +13,5 @@ urlpatterns = [
     path('nitro-alerta/', views.nitroalerta_view, name='nitroalerta'),
     path('nitro-alerta/cancelar/<str:token>/', views.nitroalerta_cancelar_view, name='nitroalerta_cancelar'),
     path('robots.txt', views.robots_txt_view, name='robots_txt'),
-    path('ads.txt', views.ads_txt_view, name='ads_txt'),
     path('sitemap.xml', views.sitemap_xml_view, name='sitemap_xml'),
 ]

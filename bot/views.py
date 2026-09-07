@@ -201,14 +201,6 @@ def robots_txt_view(request):
     return HttpResponse("\n".join(lines), content_type="text/plain")
 
 
-def ads_txt_view(request):
-    from django.http import HttpResponse
-    lines = [
-        "google.com, pub-1945676049008537, DIRECT, f08c47fec0942fa0",
-    ]
-    return HttpResponse("\n".join(lines), content_type="text/plain")
-
-
 def sitemap_xml_view(request):
     from django.http import HttpResponse
     base_url = request.build_absolute_uri('/').rstrip('/')
