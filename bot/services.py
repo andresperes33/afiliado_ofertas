@@ -1211,7 +1211,7 @@ def convert_mercado_livre_link(url):
     1. Expande o link (meli.la)
     2. Extrai a URL real do produto (MLB) do HTML
     3. Gera link afiliado com nossa tag + matt_tool
-    4. Tenta encurtar via API interna do ML (gera meli.la curto)
+    4. Tenta encurtar via API interna do ML (bônus; se falhar, segue com a URL normal)
     """
     tag = getattr(settings, 'MERCADO_LIVRE_TAG', 'pean3412407')
     matt_tool = getattr(settings, 'MERCADO_LIVRE_MATT_TOOL', '57756886')
@@ -1240,7 +1240,7 @@ def convert_mercado_livre_link(url):
             produto_url = prod_urls[0].split('?')[0].split('#')[0]
             affiliate_url = f"{produto_url}?matt_tool={matt_tool}&matt_word={tag}"
 
-            # --- Encurtamento meli.la via API Interna ---
+            # --- Encurtamento meli.la via API Interna (bônus, se tiver cookie) ---
             if ml_cookie:
                 try:
                     short_api_url = "https://www.mercadolivre.com.br/afiliados/api/v2/partners/social-links"
