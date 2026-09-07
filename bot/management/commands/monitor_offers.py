@@ -375,6 +375,22 @@ class Command(BaseCommand):
                         photo_path = os.path.abspath(photo_path)
                         logger.info(f"📸 Foto baixada: {photo_path}")
 
+                # ─── Trava: mesma imagem nos últimos 3 minutos ───────────────
+                if photo_path and os.path.exists(photo_path):
+                    from bot.services import imagem_duplicada_recente, registrar_imagem_capturada
+                    try:
+                        if await asyncio.to_thread(imagem_duplicada_recente, photo_path):
+                            logger.info("⏭️ Oferta ignorada (mesma imagem capturada nos últimos 3 min)")
+                            # Remove a foto temporária para não acumular
+                            try:
+                                os.remove(photo_path)
+                            except Exception:
+                                pass
+                            return False
+                        await asyncio.to_thread(registrar_imagem_capturada, photo_path)
+                    except Exception as img_dup_err:
+                        logger.warning(f"⚠️ Erro na trava de imagem duplicada: {img_dup_err}")
+
                 # ─── Cupom ML: usa a imagem padrão em tudo (Telegram/Zap/Stories) ──
                 # Quando o anúncio é um cupom do Mercado Livre, substitui a foto
                 # original pela imagem fixa (media/cupom/cupom_mercado_livre.jpg),

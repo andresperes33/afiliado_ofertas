@@ -1023,6 +1023,84 @@ def save_promo_to_db(texto, photo_path=None, fonte='zFinnY', url_chave=None):
         return False
 
 
+# ─── Trava de imagem duplicada (mesma foto em até N minutos) ────────────────
+# Cache em memória: mapeia hash_md5 -> timestamp. Evita consultar o banco a cada
+# oferta. O valor persiste enquanto o processo estiver rodando (o monitor fica
+# ativo 24h, então é suficiente).
+_IMAGEM_CACHE: dict = {}
+_IMAGEM_JANELA_SEGUNDOS = 180  # 3 minutos
+
+
+def _hash_imagem(photo_path):
+    """Calcula MD5 do arquivo de imagem. Retorna '' se não for possível."""
+    import hashlib
+    if not photo_path:
+        return ''
+    if isinstance(photo_path, str) and photo_path.startswith('http'):
+        return ''
+    try:
+        if not os.path.exists(photo_path):
+            return ''
+        h = hashlib.md5()
+        with open(photo_path, 'rb') as f:
+            for chunk in iter(lambda: f.read(65536), b''):
+                h.update(chunk)
+        return h.hexdigest()
+    except Exception:
+        return ''
+
+
+def imagem_duplicada_recente(photo_path):
+    """
+    Retorna True se a imagem já foi capturada nos últimos 3 minutos.
+    Usa cache em memória + fallback no banco (imagem_url idêntica recente).
+    """
+    if not photo_path:
+        return False
+
+    agora = time.time()
+
+    # 1) Cache em memória (hash MD5 do arquivo)
+    chave = _hash_imagem(photo_path)
+    if chave:
+        if chave in _IMAGEM_CACHE:
+            if agora - _IMAGEM_CACHE[chave] <= _IMAGEM_JANELA_SEGUNDOS:
+                return True
+            # expirou, remove
+            del _IMAGEM_CACHE[chave]
+        _IMAGEM_CACHE[chave] = agora
+
+    # 2) Fallback: verifica no banco se alguma promo criada nos últimos 3 min
+    #    tem a mesma imagem_url (caso o processo tenha reiniciado e perdido o cache).
+    if isinstance(photo_path, str) and photo_path.startswith('http'):
+        url_candidata = photo_path
+    elif os.path.exists(photo_path):
+        url_candidata = ''
+        try:
+            from datetime import timedelta
+            from django.utils import timezone as dj_tz
+            limite = dj_tz.now() - timedelta(seconds=_IMAGEM_JANELA_SEGUNDOS)
+            # Busca promos recentes com imagem copiada para media/promos
+            # usando o mesmo nome de arquivo base da foto baixada.
+            base_nome = os.path.basename(photo_path)
+            recentes = Promo.objects.filter(
+                criado_em__gte=limite,
+                imagem_url__icontains=base_nome,
+            ).exists()
+            if recentes:
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def registrar_imagem_capturada(photo_path):
+    """Guarda o hash da imagem capturada no cache (para as próximas ofertas)."""
+    chave = _hash_imagem(photo_path)
+    if chave:
+        _IMAGEM_CACHE[chave] = time.time()
+
+
 def get_product_info(url):
     """
     Extrai informações do produto da URL e da página (Shopee ou AliExpress).
