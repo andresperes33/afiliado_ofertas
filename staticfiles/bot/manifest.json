@@ -1,7 +1,7 @@
 {
-  "name": "Nitro Ofertas — Promoções de Tech",
+  "name": "Nitro Ofertas — Promoções em geral",
   "short_name": "Nitro Ofertas",
-  "description": "As melhores promoções de tecnologia encontradas pelo bot Nitro Ofertas. SSD, placa de vídeo, notebooks e muito mais.",
+  "description": "As melhores promoções encontradas pelo bot Nitro Ofertas. Roupas, ferramentas, casa, tecnologia e muito mais.",
   "start_url": "/promos/",
   "scope": "/",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "background_color": "#000000",
   "theme_color": "#76b900",
   "lang": "pt-BR",
-  "categories": ["shopping", "technology"],
+  "categories": ["shopping"],
   "icons": [
     {
       "src": "/static/bot/icon-192.png",
