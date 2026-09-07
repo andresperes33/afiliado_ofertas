@@ -1240,11 +1240,7 @@ def convert_mercado_livre_link(url):
 
         # 2) Se é meli.la → segue redirect para página social e extrai slug de lá
         if 'meli.la' in url:
-            r = requests.get(url, allow_redirects=True, timeout=12, headers={
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-                "Accept-Language": "pt-BR,pt;q=0.9",
-            })
+            r = requests.get(url, allow_redirects=True, timeout=12, headers=hdrs)
             page_html = r.text
             final_url = r.url
             if '/social/' in final_url:
