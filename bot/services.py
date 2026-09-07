@@ -1248,7 +1248,52 @@ def convert_mercado_livre_link(url):
                 unesc = r.text.replace('\\u002F', '/').replace('\\u0022', '"')
                 import re as _re
 
-                # Busca primeira URL com slug (qualquer formato: /p/MLB ou /up/MLBU)
+                # 1) Identifica o produto PRINCIPAL via og:image (a imagem da postagem)
+                og_img = _re.search(r'og:image[^>]*content="([^"]*)"', r.text, _re.IGNORECASE)
+                main_img_id = None
+                if og_img:
+                    m = _re.search(r'MLB\d+', og_img.group(1))
+                    main_img_id = m.group(0) if m else None
+
+                # 2) Acha o bloco JSON da imagem principal (ignora os metas no topo ~ pos 20000)
+                main_block = None
+                if main_img_id:
+                    idx = unesc.find(main_img_id, 20000)
+                    if idx == -1:
+                        idx = unesc.find(main_img_id)
+                    if idx != -1:
+                        main_block = unesc[max(0, idx - 6000):idx + 3000]
+
+                if main_block:
+                    # 2a) Prefere URL www.mercadolivre.../slug/(p|up)/MLB... dentro do bloco principal
+                    m = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/((?:p/MLB|up/MLBU)(\d+))', main_block)
+                    if m:
+                        slug = m.group(1)
+                        item_path = m.group(2)
+                        affiliate_url = f"https://www.mercadolivre.com.br/{slug}/{item_path}?matt_tool={matt_tool}&matt_word={tag}"
+                        print(f"ML Afiliado (meli.la principal): {affiliate_url[:130]}...")
+                        return affiliate_url
+
+                    # 2b) Ou URL antiga produto.mercadolivre.com.br/MLB-XXXX-slug-_JM
+                    old = _re.search(r'produto\.mercadolivre\.com\.br/(MLB-(\d+)-([^"_\s]+(?:_[^"_\s]+)*)-_JM)', main_block)
+                    if old:
+                        mlb_id = old.group(2)
+                        slug = old.group(3)
+                        affiliate_url = f"https://www.mercadolivre.com.br/{slug}/p/MLB{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
+                        print(f"ML Afiliado (meli.la principal antigo): {affiliate_url[:130]}...")
+                        return affiliate_url
+
+                    # 2c) Ou item_id do pdp_filters + sanitized_title como slug
+                    pdp = _re.search(r'item_id%3A(MLB\d+)', main_block)
+                    st = _re.search(r'sanitized_title":"-?([^"]+)"', main_block)
+                    if pdp and st:
+                        mlb_id = pdp.group(1)
+                        slug = st.group(1).strip('-')
+                        affiliate_url = f"https://www.mercadolivre.com.br/{slug}/p/{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
+                        print(f"ML Afiliado (meli.la principal pdp): {affiliate_url[:130]}...")
+                        return affiliate_url
+
+                # 3) Fallback: primeira URL com slug do feed (qualquer formato)
                 first_match = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/((?:p/MLB|up/MLBU)(\d+))', unesc)
                 if first_match:
                     slug = first_match.group(1)
