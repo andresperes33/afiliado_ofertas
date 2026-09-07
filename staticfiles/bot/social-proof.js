@@ -97,7 +97,7 @@
         interval = setInterval(function () {
             hideNotification();
             setTimeout(showNotification, 600);
-        }, 12000);
+        }, 60000);
     }
 
     if (closeBtn) {
