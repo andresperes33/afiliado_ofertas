@@ -71,7 +71,6 @@
                 <a href="{% url 'contato' %}" class="nav-link">Contato</a>
             </div>
             <div class="nav-actions">
-                <button type="button" id="btnInstalarPwa" class="btn btn-primary btn-sm" style="display:none;"><i class="fas fa-download"></i> Instalar</button>
                 <button type="button" class="nav-burger" id="navBurger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
                     <span class="burger-bar"></span>
                     <span class="burger-bar"></span>
@@ -171,35 +170,6 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
-
-// ─── Botão Instalar (PWA) ──────────────────────────────────────
-(function () {
-    var deferredPrompt = null;
-    var btnInstalar = document.getElementById('btnInstalarPwa');
-    if (!btnInstalar) return;
-
-    window.addEventListener('beforeinstallprompt', function (e) {
-        e.preventDefault();
-        deferredPrompt = e;
-        btnInstalar.style.display = 'inline-flex';
-    });
-
-    btnInstalar.addEventListener('click', function () {
-        if (!deferredPrompt) return;
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(function (choice) {
-            if (choice.outcome === 'accepted') {
-                console.log('PWA instalado');
-            }
-            deferredPrompt = null;
-            btnInstalar.style.display = 'none';
-        });
-    });
-
-    window.addEventListener('appinstalled', function () {
-        btnInstalar.style.display = 'none';
-    });
-})();
 
 // ─── Menu hamburger (mobile) ───────────────────────────────────
 (function () {
