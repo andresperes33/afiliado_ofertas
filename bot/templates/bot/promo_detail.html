@@ -41,7 +41,7 @@
     <div class="detail-hero-inner">
         <h1 class="detail-title">{{ promo.titulo }}</h1>
         <div class="detail-actions">
-            <a href="https://t.me/nitroofertasgerais" target="_blank" class="btn btn-outline-on-dark"><i class="fab fa-telegram-plane"></i> Acompanhar no Telegram</a>
+            <span class="btn btn-outline-on-dark" style="cursor:default; white-space:normal; height:auto; text-align:center;">Confira todos os detalhes da oferta 👇</span>
         </div>
     </div>
 </div>
@@ -62,7 +62,9 @@
 
     <div class="detail-info">
         <div class="card">
-            <div class="detail-label" style="font-size:1.05rem; color:var(--primary);"><i class="fas fa-info-circle"></i> Confira todos os detalhes da oferta 👇</div>
+            {% if promo.loja %}
+            <div class="detail-label" style="font-size:1.1rem; color:var(--primary);"><i class="fas fa-store"></i> {{ promo.loja }}</div>
+            {% endif %}
         </div>
 
         <div class="card">
