@@ -71,31 +71,6 @@
             {{ rodape_canais|safe }}
         </div>
 
-        {% if historico %}
-        <div class="card">
-            <div class="detail-label"><i class="fas fa-chart-line" style="color:var(--primary);"></i> Histórico de preços</div>
-            <div class="price-history">
-                <div class="price-history-chart-wrap">
-                    <canvas id="priceChart" aria-label="Evolução do preço"></canvas>
-                </div>
-                <div class="price-history-list">
-                    {% for item in historico %}
-                    <a class="price-history-row{% if item.pk == promo.pk %} is-current{% endif %}" {% if item.pk == promo.pk %}href="{% url 'promo_detail' promo.pk %}"{% elif item.pk %}href="{% url 'promo_detail' item.pk %}"{% elif item.link_afiliado %}href="{{ item.link_afiliado }}" target="_blank" rel="nofollow sponsored"{% endif %}>
-                        <div class="price-history-info">
-                            <div class="price-history-date">{{ item.criado_em|date:"d/m/y \à\s H:i" }} {% if item.pk == promo.pk %}<span class="price-history-badge"><i class="fas fa-location-arrow"></i> Você está aqui</span>{% endif %}</div>
-                            {% if item.link_afiliado or item.pk %}
-                            <div class="price-history-loja"><i class="fas fa-store"></i> {{ item.loja|default:"Loja" }} <span class="price-history-go">· ver oferta</span></div>
-                            {% endif %}
-                        </div>
-                        <span class="price-history-price">{{ item.preco|preco_completo }}</span>
-                    </a>
-                    {% endfor %}
-                </div>
-            </div>
-            {{ chart_data|json_script:"priceChartData" }}
-        </div>
-        {% endif %}
-
         <div class="detail-meta">
             <span><i class="fas fa-bolt" style="color:var(--primary);"></i> Publicado automaticamente pelo bot</span>
             <span>{{ promo.criado_em|date:"d/m/Y \à\s H:i" }}</span>
@@ -143,7 +118,6 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     function copiarCupom(el, cupom) {
         navigator.clipboard.writeText(cupom).then(() => {
@@ -159,73 +133,5 @@
             }, 2000);
         });
     }
-
-    (function initPriceChart() {
-        var el = document.getElementById('priceChart');
-        var dataEl = document.getElementById('priceChartData');
-        if (!el || !dataEl) return;
-        var pontos = JSON.parse(dataEl.textContent);
-        if (!pontos.length) return;
-
-        // Com apenas um valor (ou todos iguais), não faz sentido um "gráfico".
-        var valores = pontos.map(function (p) { return p.valor; });
-        var distintos = valores.filter(function (v, i) { return valores.indexOf(v) === i; });
-        if (distintos.length < 2) {
-            el.closest('.price-history-chart-wrap').style.display = 'none';
-            el.closest('.price-history-chart-wrap').remove();
-            return;
-        }
-
-        var labels = pontos.map(function (p) {
-            return new Date(p.data).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
-        });
-
-        new Chart(el, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Preço (R$)',
-                    data: valores,
-                    borderColor: '#76b900',
-                    backgroundColor: 'rgba(118,185,0,0.12)',
-                    fill: true,
-                    tension: 0.25,
-                    pointBackgroundColor: '#76b900',
-                    pointBorderColor: '#0d0d0d',
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: function (ctx) {
-                                return 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    y: {
-                        grace: '10%',
-                        ticks: {
-                            color: '#888',
-                            callback: function (v) { return 'R$ ' + v.toLocaleString('pt-BR'); }
-                        },
-                        grid: { color: 'rgba(255,255,255,0.06)' }
-                    },
-                    x: {
-                        ticks: { color: '#888' },
-                        grid: { display: false }
-                    }
-                }
-            }
-        });
-    })();
 </script>
 {% endblock %}
