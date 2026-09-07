@@ -1273,12 +1273,13 @@ def convert_mercado_livre_link(url):
                         return affiliate_url
 
                     # 2b) Ou URL antiga produto.mercadolivre.com.br/MLB-XXXX-slug-_JM
-                    old = _re.search(r'produto\.mercadolivre\.com\.br/(MLB-(\d+)-([^"_\s]+(?:_[^"_\s]+)*)-_JM)', main_block)
+                    # Mantém a URL real do item (formato produto.mercadolivre) com os params matt,
+                    # pois nem todo item tem página /p/MLB (produto de catálogo).
+                    old = _re.search(r'produto\.mercadolivre\.com\.br/(MLB-(\d+)-[^"_\s]+(?:_[^"_\s]+)*_JM)', main_block)
                     if old:
-                        mlb_id = old.group(2)
-                        slug = old.group(3)
-                        affiliate_url = f"https://www.mercadolivre.com.br/{slug}/p/MLB{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
-                        print(f"ML Afiliado (social principal antigo): {affiliate_url[:130]}...")
+                        old_path = old.group(1)
+                        affiliate_url = f"https://produto.mercadolivre.com.br/{old_path}?matt_tool={matt_tool}&matt_word={tag}"
+                        print(f"ML Afiliado (social principal item): {affiliate_url[:130]}...")
                         return affiliate_url
 
                     # 2c) Ou item_id do pdp_filters + sanitized_title como slug
