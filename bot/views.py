@@ -190,7 +190,8 @@ def nitroalerta_cancelar_view(request, token):
 
 
 def robots_txt_view(request):
-    base_url = request.build_absolute_uri('/').rstrip('/')
+    from django.conf import settings as dj_settings
+    base_url = (getattr(dj_settings, 'SITE_URL', '') or '').rstrip('/')
     lines = [
         "User-agent: *",
         "Allow: /",
@@ -203,7 +204,8 @@ def robots_txt_view(request):
 
 def sitemap_xml_view(request):
     from django.http import HttpResponse
-    base_url = request.build_absolute_uri('/').rstrip('/')
+    from django.conf import settings as dj_settings
+    base_url = (getattr(dj_settings, 'SITE_URL', '') or '').rstrip('/')
     pages = [
         {"loc": f"{base_url}/promos/", "changefreq": "always", "priority": "1.0"},
         {"loc": f"{base_url}/nitro-alerta/", "changefreq": "monthly", "priority": "0.5"},

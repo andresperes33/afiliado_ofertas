@@ -43,6 +43,10 @@ CSRF_TRUSTED_ORIGINS = [
     ).split(',') if o.strip()
 ]
 
+# Detecta HTTPS quando o servidor está atrás de proxy (EasyPanel/Nginx).
+# O proxy envia o header X-Forwarded-Proto; sem isso o Django gera URLs com http://.
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 
 # Application definition
 
