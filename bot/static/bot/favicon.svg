@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <rect width="64" height="64" rx="14" fill="#76b900"/>
-  <circle cx="32" cy="32" r="18" fill="none" stroke="#ffffff" stroke-width="6"/>
+  <rect width="64" height="64" fill="#000000"/>
+  <rect x="0" y="0" width="12" height="12" fill="#76b900"/>
+  <rect x="52" y="52" width="12" height="12" fill="#76b900"/>
+  <text x="32" y="46" font-family="Inter, Arial Black, Inter, Arial, Helvetica, sans-serif" font-size="52" font-weight="800" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-1">O</text>
 </svg>
