@@ -111,7 +111,7 @@ def compor_story_card(foto_path, mensagem, output_path=None):
     draw.rectangle([(0, 0), (W, 110)], fill=(20, 24, 38))
     fonte_marca = _carregar_fonte(48, bold=True)
     if fonte_marca:
-        draw.text((40, 28), 'NITRO TECH', font=fonte_marca, fill=(255, 255, 0))
+        draw.text((40, 28), 'NITRO OFERTAS', font=fonte_marca, fill=(255, 255, 0))
 
     # foto do produto
     AREA_FOTO = (40, 140, W - 40, 860)
