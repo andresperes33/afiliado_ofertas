@@ -1207,118 +1207,68 @@ def convert_to_affiliate_link(url, final_url=None):
 
 def convert_mercado_livre_link(url):
     """
-    Converte link do Mercado Livre para afiliado.
-    - meli.la (social) → mantém URL social mutando matt_word/matt_tool → FUNCIONA
-    - /p/MLB... sem slug → ML bloqueia (verificação) → retorna None para evitar link inválido
-    - URLs com slug completo → usa direto
+    Gera link de afiliado do Mercado Livre.
+    1. Expande o link (meli.la)
+    2. Extrai a URL real do produto (MLB) do HTML
+    3. Gera link afiliado com nossa tag + matt_tool
+    4. Tenta encurtar via API interna do ML (gera meli.la curto)
     """
     tag = getattr(settings, 'MERCADO_LIVRE_TAG', 'pean3412407')
     matt_tool = getattr(settings, 'MERCADO_LIVRE_MATT_TOOL', '57756886')
     ml_cookie = getattr(settings, 'MERCADO_LIVRE_COOKIE', None)
 
     hdrs = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "Accept-Language": "pt-BR,pt;q=0.9",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36"
     }
     if ml_cookie:
         hdrs["Cookie"] = ml_cookie
 
     try:
-        import re as _re
+        # 1. Expande o link (meli.la → página que contém MLB/redirect)
+        r = requests.get(url, allow_redirects=True, timeout=12, headers=hdrs)
+        page_html = r.text
 
-        # 1) Se já tem slug no link (ex: /produto/p/MLB... ou /produto/up/MLBU...), usa direto
-        m = _re.search(r'https://www\.mercadolivre\.com\.br/([^/\s]+)/((?:p/MLB\d+|up/MLBU\d+))', url)
-        if m:
-            slug = m.group(1)
-            item_path = m.group(2)
-            affiliate_url = f"https://www.mercadolivre.com.br/{slug}/{item_path}?matt_tool={matt_tool}&matt_word={tag}"
-            print(f"ML Afiliado (já tem slug): {affiliate_url[:130]}...")
+        # 2. Extrai URL do produto real no HTML da página
+        import re as _re
+        prod_urls = _re.findall(
+            r'https://www\.mercadolivre\.com\.br/[^"<>\s]+/p/MLB\d+',
+            page_html,
+        )
+
+        if prod_urls:
+            # Pega o primeiro produto e limpa parâmetros extras
+            produto_url = prod_urls[0].split('?')[0].split('#')[0]
+            affiliate_url = f"{produto_url}?matt_tool={matt_tool}&matt_word={tag}"
+
+            # --- Encurtamento meli.la via API Interna ---
+            if ml_cookie:
+                try:
+                    short_api_url = "https://www.mercadolivre.com.br/afiliados/api/v2/partners/social-links"
+                    short_hdrs = hdrs.copy()
+                    short_hdrs["Content-Type"] = "application/json"
+                    short_payload = {"source_url": affiliate_url}
+
+                    short_resp = requests.post(short_api_url, headers=short_hdrs, json=short_payload, timeout=8)
+                    if short_resp.status_code in (200, 201):
+                        short_url = short_resp.json().get('short_url')
+                        if short_url:
+                            print(f"ML Curto (meli.la): {short_url}")
+                            return short_url
+                except Exception as short_err:
+                    print(f"ML Shortener Erro: {short_err}")
+
+            print(f"ML Afiliado (produto): {affiliate_url[:100]}...")
             return affiliate_url
 
-        # 2) Se é meli.la OU /social/ → busca página e extrai o produto principal
-        if 'meli.la' in url or '/social/' in url:
-            r = requests.get(url, allow_redirects=True, timeout=12, headers=hdrs)
-            page_html = r.text
-            final_url = r.url
-            if '/social/' in final_url:
-                # Extrai slug do JSON na página social
-                unesc = r.text.replace('\\u002F', '/').replace('\\u0022', '"')
-                import re as _re
+        # Fallback: tenta pegar pelo ID MLB
+        mlb_ids = list(set(_re.findall(r'MLB\d+', page_html)))
+        if mlb_ids:
+            mlb_id = mlb_ids[0]
+            affiliate_url = f"https://www.mercadolivre.com.br/p/{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
+            print(f"ML Afiliado (MLB ID): {affiliate_url}")
+            return affiliate_url
 
-                # 1) Identifica o produto PRINCIPAL via og:image (a imagem da postagem)
-                og_img = _re.search(r'og:image[^>]*content="([^"]*)"', r.text, _re.IGNORECASE)
-                main_img_id = None
-                if og_img:
-                    m = _re.search(r'MLB\d+', og_img.group(1))
-                    main_img_id = m.group(0) if m else None
-
-                # 2) Acha o bloco JSON da imagem principal (ignora os metas no topo ~ pos 20000)
-                main_block = None
-                if main_img_id:
-                    idx = unesc.find(main_img_id, 20000)
-                    if idx == -1:
-                        idx = unesc.find(main_img_id)
-                    if idx != -1:
-                        main_block = unesc[max(0, idx - 6000):idx + 3000]
-
-                if main_block:
-                    # 2a) Prefere URL www.mercadolivre.../slug/(p|up)/MLB... dentro do bloco principal
-                    m = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/((?:p/MLB|up/MLBU)(\d+))', main_block)
-                    if m:
-                        slug = m.group(1)
-                        item_path = m.group(2)
-                        affiliate_url = f"https://www.mercadolivre.com.br/{slug}/{item_path}?matt_tool={matt_tool}&matt_word={tag}"
-                        print(f"ML Afiliado (social principal): {affiliate_url[:130]}...")
-                        return affiliate_url
-
-                    # 2b) Ou URL antiga produto.mercadolivre.com.br/MLB-XXXX-slug-_JM
-                    # Mantém a URL real do item (formato produto.mercadolivre) com os params matt,
-                    # pois nem todo item tem página /p/MLB (produto de catálogo).
-                    old = _re.search(r'produto\.mercadolivre\.com\.br/(MLB-(\d+)-[^"_\s]+(?:_[^"_\s]+)*_JM)', main_block)
-                    if old:
-                        old_path = old.group(1)
-                        affiliate_url = f"https://produto.mercadolivre.com.br/{old_path}?matt_tool={matt_tool}&matt_word={tag}"
-                        print(f"ML Afiliado (social principal item): {affiliate_url[:130]}...")
-                        return affiliate_url
-
-                    # 2c) Ou item_id do pdp_filters + sanitized_title como slug
-                    pdp = _re.search(r'item_id%3A(MLB\d+)', main_block)
-                    st = _re.search(r'sanitized_title":"-?([^"]+)"', main_block)
-                    if pdp and st:
-                        mlb_id = pdp.group(1)
-                        slug = st.group(1).strip('-')
-                        affiliate_url = f"https://www.mercadolivre.com.br/{slug}/p/{mlb_id}?matt_tool={matt_tool}&matt_word={tag}"
-                        print(f"ML Afiliado (social principal pdp): {affiliate_url[:130]}...")
-                        return affiliate_url
-
-                # 3) Fallback: primeira URL com slug do feed (qualquer formato)
-                first_match = _re.search(r'www\.mercadolivre\.com\.br/([^/\s"]+)/((?:p/MLB|up/MLBU)(\d+))', unesc)
-                if first_match:
-                    slug = first_match.group(1)
-                    item_path = first_match.group(2)
-                    affiliate_url = f"https://www.mercadolivre.com.br/{slug}/{item_path}?matt_tool={matt_tool}&matt_word={tag}"
-                    print(f"ML Afiliado (social slug): {affiliate_url[:130]}...")
-                    return affiliate_url
-                # Fallback: muta matt na URL social
-                try:
-                    parsed = urllib.parse.urlparse(r.url)
-                    qs = dict(urllib.parse.parse_qsl(parsed.query, keep_blank_values=True))
-                    qs['matt_word'] = getattr(settings, 'MERCADO_LIVRE_TAG', 'pean3412407')
-                    qs['matt_tool'] = str(matt_tool)
-                    new_qs = urllib.parse.urlencode(qs)
-                    affiliate_url = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, parsed.path, parsed.params, new_qs, parsed.fragment))
-                    print(f"ML Afiliado (social fallback): {affiliate_url[:130]}...")
-                    return affiliate_url
-                except Exception:
-                    pass
-
-# 3) Se é link bare /p/MLB... sem slug → ML bloqueia → retorna None
-        if '/p/MLB' in url or '/up/MLBU' in url:
-            print(f"ML: Link sem slug detectado ({url}) — ML bloqueia sem slug. Use link com slug (ex: /produto/p/MLB...) ou meli.la")
-            return None
-
-        print("ML: Formato de link não suportado")
+        print("ML: Nenhum produto encontrado na página.")
         return None
 
     except Exception as e:
