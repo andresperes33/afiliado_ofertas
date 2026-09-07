@@ -1,7 +1,7 @@
 (function () {
     var banner = document.getElementById('cookieBanner');
     if (!banner) return;
-    var KEY = 'nitrotech_cookie_consent';
+    var KEY = 'nitroofertas_cookie_consent';
 
     function getConsent() {
         try { return localStorage.getItem(KEY); } catch (e) { return null; }
