@@ -12,10 +12,10 @@
     </div>
     <div class="card-body">
         {% with texto=promo.texto_original|card_text %}
-        {% if texto and texto|length > 40 %}
+        {% if texto %}
         <div class="card-desc">{{ texto|preco_completo|destacar_valores }}</div>
         {% else %}
-        <h3 class="card-title">{{ promo.titulo }}</h3>
+        <div class="card-desc">{{ promo.titulo }}</div>
         {% endif %}
         {% endwith %}
         <div class="card-footer">
