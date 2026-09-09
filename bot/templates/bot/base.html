@@ -50,6 +50,29 @@
 </head>
 <body>
 
+<style>
+.top-banner{display:flex;width:100%;height:44px;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;color:#fff;align-items:center;justify-content:center;border-radius:2px;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.2);}
+.banner-half{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;height:100%;font-size:14px;letter-spacing:.05em;}
+.banner-whatsapp{background:#25D366;}
+.banner-telegram{background:#0088cc;}
+.banner-half i{font-size:18px;}
+.banner-half small{font-size:10px;opacity:.9;margin-left:4px;font-weight:400;}
+@media(max-width:480px){.banner-half span{display:none;}.banner-half small{display:none;}}
+</style>
+
+<!-- Top Banner WhatsApp / Telegram -->
+<a href="https://t.me/nitroofertasgerais" class="top-banner" aria-label="Entrar no grupo do Telegram Nitro Ofertas">
+    <div class="banner-half banner-whatsapp" aria-label="WhatsApp">
+        <i class="fab fa-whatsapp" aria-hidden="true"></i>
+        <span>WhatsApp</span>
+    </div>
+    <div class="banner-half banner-telegram" aria-label="Telegram">
+        <i class="fab fa-telegram-plane" aria-hidden="true"></i>
+        <span>Telegram</span>
+        <small>grupo público</small>
+    </div>
+</a>
+
 <header>
     <div class="utility-bar">
         <div class="utility-bar-inner">
