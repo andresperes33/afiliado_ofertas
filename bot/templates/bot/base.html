@@ -58,18 +58,21 @@
 .banner-half i.fa-arrow-right{font-size:10px;margin-left:2px;opacity:.9;}
 .banner-half i.fa-whatsapp{font-size:22px;}
 .banner-half i.fa-telegram-plane{font-size:22px;}
-@media(max-width:520px){.banner-half span{font-size:14px;letter-spacing:0;}.banner-half{padding:0 6px;}.banner-half i.fa-arrow-right{font-size:10px;}}
+.mobile-txt{display:none;}
+@media(max-width:520px){.desktop-txt{display:none;}.mobile-txt{display:inline;}.banner-half span{font-size:14px;letter-spacing:0;}.banner-half{padding:0 6px;}.banner-half i.fa-arrow-right{font-size:10px;}}
 </style>
 
 <!-- Top Banner WhatsApp / Telegram -->
 <a href="https://t.me/nitroofertasgerais" class="top-banner" aria-label="Entrar no grupo de ofertas no Telegram" target="_blank" rel="noopener noreferrer">
     <div class="banner-half banner-whatsapp">
         <i class="fab fa-whatsapp" aria-hidden="true"></i>
-        <span>Entre no grupo do WhatsApp <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
+        <span class="desktop-txt">Entre no grupo do WhatsApp <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
+        <span class="mobile-txt">WhatsApp <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
     </div>
     <div class="banner-half banner-telegram">
         <i class="fab fa-telegram-plane" aria-hidden="true"></i>
-        <span>Entre no canal do Telegram <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
+        <span class="desktop-txt">Entre no canal do Telegram <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
+        <span class="mobile-txt">Telegram <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
     </div>
 </a>
 
