@@ -430,7 +430,8 @@ class Command(BaseCommand):
                     # Chave estável baseada no link BRUTO + preço (msg_text),
                     # para não ignorar ofertas novas do mesmo produto com preço/cupom diferente.
                     chave_estavel = _chave_dedup(msg_text)
-                    promo_id = await asyncio.to_thread(save_promo_to_db, modified_text, photo_path, source_channel, chave_estavel)
+                    texto_para_db = remover_emojis_exceto_joinha(modified_text)
+                    promo_id = await asyncio.to_thread(save_promo_to_db, texto_para_db, photo_path, source_channel, chave_estavel)
                     logger.info("💾 Promo salva no banco de dados")
                 except Exception as db_err:
                     logger.error(f"❌ Erro ao salvar promo no banco: {db_err}")
