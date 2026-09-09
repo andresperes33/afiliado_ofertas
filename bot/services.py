@@ -603,6 +603,9 @@ _TERMOS_TEASER = [
     'no precinho', 'preço antigo', 'preco antigo', 'veio o preço', 'veio o preco',
     'segura esse', 'segura essa', 'conseguiram', 'depois dessa', 'se liga',
     'no preço', 'no preco', 'no precinho', 'tá na hora', 'ta na hora',
+    'tá precisando', 'ta precisando', 'precisando de upgrade', 'upgrade no pc',
+    'não perca', 'nao perca', 'corre que', 'só hoje', 'so hoje',
+    'oferta do dia', 'promo do dia', 'super oferta',
 ]
 
 
