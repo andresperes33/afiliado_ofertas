@@ -602,6 +602,7 @@ _TERMOS_TEASER = [
     'ainda no preço', 'ainda no preco', 'ainda no precinho', 'ainda no preção',
     'no precinho', 'preço antigo', 'preco antigo', 'veio o preço', 'veio o preco',
     'segura esse', 'segura essa', 'conseguiram', 'depois dessa', 'se liga',
+    'no preço', 'no preco', 'no precinho', 'tá na hora', 'ta na hora',
 ]
 
 
