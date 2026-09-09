@@ -11,11 +11,13 @@
         {% endif %}
     </div>
     <div class="card-body">
-        {% if promo.texto_original|card_text %}
-        <div class="card-desc">{{ promo.texto_original|card_text|preco_completo|destacar_valores }}</div>
+        {% with texto=promo.texto_original|card_text %}
+        {% if texto and texto|length > 20 %}
+        <div class="card-desc">{{ texto|preco_completo|destacar_valores }}</div>
         {% else %}
         <h3 class="card-title">{{ promo.titulo }}</h3>
         {% endif %}
+        {% endwith %}
         <div class="card-footer">
             {% if promo.loja %}<span class="card-loja"><i class="fas fa-store"></i> {{ promo.loja }}</span>{% endif %}
             <span class="card-date">{{ promo.criado_em|date:"d/m \à\s H:i" }}</span>
