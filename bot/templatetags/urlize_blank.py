@@ -66,6 +66,8 @@ def full_text(value):
             continue
         if re.match(r'^[\U0001F300-\U0001FAFF\s]{0,3}$', limpa):
             continue
+        if re.search(r'promoção pode encerrar|encerrar a qualquer|promoção expira|corre que acaba|últimas unidades|restam poucos|aproveite antes|não dura muito', limpa, re.IGNORECASE):
+            continue
         linhas.append(limpa)
     return '\n'.join(linhas)
 
