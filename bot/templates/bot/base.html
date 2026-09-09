@@ -51,25 +51,23 @@
 <body>
 
 <style>
-.top-banner{display:flex;width:100%;height:44px;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;color:#fff;align-items:center;justify-content:center;border-radius:2px;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.2);}
-.banner-half{flex:1;display:flex;align-items:center;justify-content:center;gap:8px;height:100%;font-size:14px;letter-spacing:.05em;}
+.top-banner{display:flex;width:100%;height:44px;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;color:#fff;align-items:center;justify-content:center;border-radius:2px;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.2);cursor:pointer;}
+.banner-half{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;height:100%;font-size:14px;letter-spacing:.02em;padding:0 12px;}
 .banner-whatsapp{background:#25D366;}
 .banner-telegram{background:#0088cc;}
-.banner-half i{font-size:18px;}
-.banner-half small{font-size:10px;opacity:.9;margin-left:4px;font-weight:400;}
-@media(max-width:480px){.banner-half span{display:none;}.banner-half small{display:none;}}
+.banner-half i.fa-arrow-right{font-size:10px;margin-left:2px;opacity:.9;}
+@media(max-width:520px){.banner-half span{font-size:12px;}.banner-half{padding:0 8px;}}
 </style>
 
 <!-- Top Banner WhatsApp / Telegram -->
-<a href="https://t.me/nitroofertasgerais" class="top-banner" aria-label="Entrar no grupo do Telegram Nitro Ofertas">
-    <div class="banner-half banner-whatsapp" aria-label="WhatsApp">
+<a href="https://t.me/nitroofertasgerais" class="top-banner" aria-label="Entrar no grupo de ofertas no Telegram">
+    <div class="banner-half banner-whatsapp">
         <i class="fab fa-whatsapp" aria-hidden="true"></i>
-        <span>WhatsApp</span>
+        <span>Entre no grupo do zap <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
     </div>
-    <div class="banner-half banner-telegram" aria-label="Telegram">
+    <div class="banner-half banner-telegram">
         <i class="fab fa-telegram-plane" aria-hidden="true"></i>
-        <span>Telegram</span>
-        <small>grupo público</small>
+        <span>Entre no canal do telegram <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
     </div>
 </a>
 
