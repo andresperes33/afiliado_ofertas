@@ -12,7 +12,7 @@
     </div>
     <div class="card-body">
         {% if promo.texto_original|card_text %}
-        <div class="card-desc">{{ promo.texto_original|card_text|truncatechars:500|preco_completo|destacar_valores }}</div>
+        <div class="card-desc">{{ promo.texto_original|card_text|preco_completo|destacar_valores }}</div>
         {% else %}
         <h3 class="card-title">{{ promo.titulo }}</h3>
         {% endif %}
