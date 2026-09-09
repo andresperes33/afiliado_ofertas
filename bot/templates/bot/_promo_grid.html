@@ -11,7 +11,7 @@
         {% endif %}
     </div>
     <div class="card-body">
-        {% with texto=promo.texto_original|card_text %}
+        {% with texto=promo.texto_original|full_text %}
         {% if texto %}
         <div class="card-desc">{{ texto|preco_completo|destacar_valores }}</div>
         {% else %}

@@ -49,6 +49,27 @@ def card_text(value):
     return texto_card(value)
 
 
+@register.filter
+def full_text(value):
+    """Texto completo da mensagem original removendo apenas URLs e linhas
+    que são só marcadores de link (⬇️, 🔗, etc)."""
+    if not value:
+        return ''
+    linhas = []
+    for linha in value.split('\n'):
+        limpa = linha.strip()
+        if not limpa:
+            continue
+        if re.search(r'https?://\S+', limpa):
+            continue
+        if any(s in limpa for s in ('⬇', '🔗', '🖥', '🥇', '↓')):
+            continue
+        if re.match(r'^[\U0001F300-\U0001FAFF\s]{0,3}$', limpa):
+            continue
+        linhas.append(limpa)
+    return '\n'.join(linhas)
+
+
 # Valores a destacar em negrito: preço em R$, percentuais de desconto
 # e parcelas (ex.: R$ 96,54, 15% OFF, em até 12x).
 # Usa [ \t] em vez de \s para nunca cruzar quebras de linha.
