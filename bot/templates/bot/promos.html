@@ -237,7 +237,7 @@ const form = document.querySelector('.search-form');
                 const urlParams = new URLSearchParams(window.location.search);
                 params = urlParams.toString();
 
-                fetch('/promos/stats/?periodo=' + periodo + '&' + params, {
+                fetch(window.location.pathname + '?' + params, {
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
                 })
                 .then(res => {
@@ -259,6 +259,11 @@ const form = document.querySelector('.search-form');
             const periodo = '{{ periodo }}';
             const urlParams = new URLSearchParams(window.location.search);
             params = urlParams.toString();
+
+            // Inicia verificação automática
+            checkNewPromos();
+            setInterval(checkNewPromos, 60 * 1000);
+        })();
 
         // ─── Cronômetro regressivo para atualização ───────────────────────────
         (function () {
