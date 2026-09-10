@@ -354,7 +354,16 @@ document.addEventListener('click', function (e) {
 
 // Auto-refresh todo site a cada 60 segundos
 setTimeout(function () {
-    window.location.reload();
+    var grid = document.getElementById('grid');
+    if (!grid) return;
+    fetch(window.location.pathname + window.location.search, { headers: {'X-Requested-With':'XMLHttpRequest'} })
+    .then(r => r.text())
+    .then(html => {
+        var doc = new DOMParser().parseFromString(html, 'text/html');
+        var novo = doc.getElementById('grid');
+        if (novo && novo.innerHTML) grid.innerHTML = novo.innerHTML;
+    })
+    .catch(function(){});
 }, 60000);</script>
 </body>
 </html>
