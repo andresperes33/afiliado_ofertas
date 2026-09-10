@@ -4,6 +4,17 @@
 {% block title %}Promoções | Promoções Nitro Ofertas{% endblock %}
 
 {% block nav_filters %}
+<style>
+.cs-select{position:relative;cursor:pointer;flex-shrink:0;}
+.cs-trigger{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:6px 14px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;font-weight:500;white-space:nowrap;transition:border-color .2s,background .2s;}
+.cs-select:hover .cs-trigger{border-color:rgba(118,185,0,0.5);background:rgba(255,255,255,0.1);}
+.cs-trigger svg{flex-shrink:0;transition:transform .2s;}
+.cs-select.open .cs-trigger svg{transform:rotate(180deg);}
+.cs-options{display:none!important;position:absolute;top:calc(100% + 4px);left:0;min-width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.15);border-radius:10px;padding:4px 0;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,0.6);}
+.cs-select.open .cs-options{display:block!important;}
+.cs-opt{padding:8px 16px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;white-space:nowrap;cursor:pointer;transition:background .15s;}
+.cs-opt:hover{background:rgba(118,185,0,0.15);color:#76b900;}
+</style>
 <div class="nav-filters-bar">
     <div class="nav-filters-inner">
         <span class="nav-filter-label">PERÍODO</span>
