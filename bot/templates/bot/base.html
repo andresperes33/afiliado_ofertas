@@ -97,7 +97,11 @@
                 {% if request.GET.loja %}<input type="hidden" name="loja" value="{{ request.GET.loja }}">{% endif %}
                 <input type="text" name="q" placeholder="Pesquisar oferta" value="{{ request.GET.q }}" aria-label="Pesquisar oferta" autocomplete="off">
             </form>
-            <div class="nav-actions" style="order:3;">
+            <a href="#" class="nav-icon-item" id="btnAppQr" style="order:3;flex-direction:column;align-items:center;text-decoration:none;color:var(--on-dark);gap:2px;padding:0 8px;" aria-label="Baixar o app">
+                <i class="fas fa-mobile-alt" style="font-size:20px;color:var(--primary);"></i>
+                <span style="font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap;">Baixar app</span>
+            </a>
+            <div class="nav-actions" style="order:4;">
                 <button type="button" class="nav-burger" id="navBurger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
                     <span class="burger-bar"></span>
                     <span class="burger-bar"></span>
