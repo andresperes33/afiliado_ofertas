@@ -221,48 +221,33 @@ const form = document.querySelector('.search-form');
             });
         }
 
-        // ─── Auto-refresh automático sem reload a página ───────────────────────────
+        // ─── Auto-refresh: verifica a cada 60s e atualiza grid se mudou ────────
         (function () {
-            let lastCount = {{ total }};
-            let manualLastCount = lastCount;
-
-            function checkNewPromos() {
-                const todayDate = new Date();
-                const todosMeses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
-                const formato = '{day}/{month}/{year} {hour}:{minute}';
-                const todayStr = todayDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                const hora = String(todayDate.getHours()).padStart(2, '0');
-                const minuto = String(todayDate.getMinutes()).padStart(2, '0');
-
-                const urlParams = new URLSearchParams(window.location.search);
-                params = urlParams.toString();
-
-                fetch(window.location.pathname + '?' + params, {
-                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                })
-                .then(res => {
-                    if (!res.ok) return;
-                    return res.json();
-                })
-                .then(data => {
-                    if (data && data.total > lastCount && data.total > manualLastCount) {
-                        manualLastCount = data.total;
-                        carregar('/promos/?' + params + '#grid');
-                    }
-                    lastCount = data.total;
-                })
-                .catch(err => {
-                    // Mantém odometer, ignora erro tentar novamente em 60 segundos
-                });
+            var timerEl = document.getElementById('update-timer');
+            var segundos = 60;
+            function tick() {
+                if (timerEl) timerEl.textContent = Math.floor(segundos/60)+':' + (segundos%60 < 10 ? '0' : '') + (segundos%60) + ' até atualizar';
+                segundos--;
+                if (segundos <= 0) segundos = 60;
             }
+            setInterval(tick, 1000);
+            tick();
 
-            const periodo = '{{ periodo }}';
-            const urlParams = new URLSearchParams(window.location.search);
-            params = urlParams.toString();
-
-            // Inicia verificação automática
-            checkNewPromos();
-            setInterval(checkNewPromos, 60 * 1000);
+            // Atualiza a página a cada 60 segundos via AJAX
+            setInterval(function () {
+                var grid = document.getElementById('grid');
+                if (!grid) return;
+                fetch(window.location.pathname + window.location.search, { headers: {'X-Requested-With':'XMLHttpRequest'} })
+                .then(r => r.text())
+                .then(html => {
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var novoGrid = doc.getElementById('grid');
+                    if (novoGrid && novoGrid.innerHTML.length > 0 && novoGrid.innerHTML !== grid.innerHTML) {
+                        grid.innerHTML = novoGrid.innerHTML;
+                    }
+                })
+                .catch(function () {});
+            }, 60 * 1000);
         })();
 
         // ─── Cronômetro regressivo para atualização ───────────────────────────
