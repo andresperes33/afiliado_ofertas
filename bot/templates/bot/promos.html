@@ -18,7 +18,7 @@
 .cs-opt{padding:8px 16px;color:#fff;font-size:13px;font-family:'Inter',sans-serif;white-space:nowrap;cursor:pointer;transition:background .15s;}
 .cs-opt:hover{background:rgba(118,185,0,0.15);color:#76b900;}
 </style>
-<div class="nav-filters-bar">
+<div class="nav-filters-bar" id="nav-filters-bar">
     <div class="nav-filters-inner">
         <span class="nav-filter-label">PERÍODO</span>
         <div class="cs-select" data-target="filtro-periodo">
@@ -60,31 +60,6 @@
             <a href="#grid" class="btn btn-primary">Ver ofertas <i class="fas fa-arrow-down"></i></a>
         </div>
         <div class="hero-tag"><i class="fas fa-circle-check"></i> Toda promo aqui tem foto, link e cupom</div>
-    </div>
-</div>
-
-<div class="filters-wrap" id="filters">
-    <div class="filters-inner">
-        <div class="filter-group">
-            <span class="filter-label">Período</span>
-            <select id="filtro-periodo" class="filter-select">
-                <option value="hoje" {% if periodo == 'hoje' %}selected{% endif %}>Hoje</option>
-                <option value="semana" {% if periodo == 'semana' %}selected{% endif %}>Esta Semana</option>
-                <option value="mes" {% if periodo == 'mes' %}selected{% endif %}>Este Mês</option>
-                <option value="tudo" {% if periodo == 'tudo' %}selected{% endif %}>Tudo</option>
-            </select>
-        </div>
-        {% if lojas %}
-        <div class="filter-group">
-            <span class="filter-label">Loja</span>
-            <select id="filtro-loja" class="filter-select">
-                <option value="" {% if not loja_ativa %}selected{% endif %}>Todas</option>
-                {% for lojanome in lojas %}
-                <option value="{{ lojanome }}" {% if loja_ativa == lojanome %}selected{% endif %}>{{ lojanome }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        {% endif %}
     </div>
 </div>
 
@@ -149,12 +124,10 @@
                 const html = await res.text();
                 const doc = new DOMParser().parseFromString(html, 'text/html');
                 const novoResultado = doc.getElementById('resultado');
-                const novosFiltros = doc.getElementById('filters');
                 if (novoResultado) {
                     wrapper.innerHTML = novoResultado.innerHTML;
-                    document.getElementById('filters').innerHTML = novosFiltros.innerHTML;
                     history.replaceState(null, '', url.split('#')[0]);
-                    const top = document.getElementById('filters').getBoundingClientRect().top + window.scrollY;
+                    const top = wrapper.getBoundingClientRect().top + window.scrollY;
                     window.scrollTo({ top: top - 70, behavior: 'smooth' });
                 }
             } catch (e) { }
