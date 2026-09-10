@@ -8,9 +8,8 @@
     <div class="nav-filters-inner">
         <span class="nav-filter-label">PERÍODO</span>
         <div class="cs-select" data-target="filtro-periodo">
-            <div class="cs-selected">{% if periodo == 'hoje' %}Hoje{% elif periodo == 'semana' %}Esta Semana{% elif periodo == 'mes' %}Este Mês{% else %}Tudo{% endif %}</div>
-            <svg class="cs-arrow" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#76b900"/></svg>
-            <div class="cs-list">
+            <div class="cs-trigger"><span>{% if periodo == 'hoje' %}Hoje{% elif periodo == 'semana' %}Esta Semana{% elif periodo == 'mes' %}Este Mês{% else %}Tudo{% endif %}</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#76b900"/></svg></div>
+            <div class="cs-options">
                 <div class="cs-opt" data-val="hoje">Hoje</div>
                 <div class="cs-opt" data-val="semana">Esta Semana</div>
                 <div class="cs-opt" data-val="mes">Este Mês</div>
@@ -20,9 +19,8 @@
         {% if lojas %}
         <span class="nav-filter-label">LOJA</span>
         <div class="cs-select" data-target="filtro-loja">
-            <div class="cs-selected">{% if loja_ativa %}{{ loja_ativa }}{% else %}Todas{% endif %}</div>
-            <svg class="cs-arrow" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#76b900"/></svg>
-            <div class="cs-list">
+            <div class="cs-trigger"><span>{% if loja_ativa %}{{ loja_ativa }}{% else %}Todas{% endif %}</span><svg width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#76b900"/></svg></div>
+            <div class="cs-options">
                 <div class="cs-opt" data-val="">Todas</div>
                 {% for lojanome in lojas %}
                 <div class="cs-opt" data-val="{{ lojanome }}">{{ lojanome }}</div>
@@ -159,13 +157,11 @@
         }
 
         document.querySelectorAll('.cs-select').forEach(function (sel) {
-            var trigger = sel.querySelector('.cs-selected');
-            var arrow = sel.querySelector('.cs-arrow');
-            var list = sel.querySelector('.cs-list');
+            var trigger = sel.querySelector('.cs-trigger');
             var hidden = document.getElementById(sel.dataset.target);
             var opts = sel.querySelectorAll('.cs-opt');
 
-            trigger.parentElement.addEventListener('click', function (e) {
+            trigger.addEventListener('click', function (e) {
                 e.stopPropagation();
                 var wasOpen = sel.classList.contains('open');
                 document.querySelectorAll('.cs-select.open').forEach(function (s) { s.classList.remove('open'); });
@@ -175,7 +171,7 @@
             opts.forEach(function (opt) {
                 opt.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    trigger.textContent = opt.textContent;
+                    trigger.querySelector('span').textContent = opt.textContent;
                     hidden.value = opt.dataset.val;
                     sel.classList.remove('open');
                     aplicarFiltros();
