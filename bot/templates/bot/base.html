@@ -357,15 +357,24 @@ document.addEventListener('click', function (e) {
     setInterval(tick, 1000);
 })();
 
-setTimeout(function () {
+// Atualiza o grid a cada 30s SEM reload (controle anti-cache)
+setInterval(function () {
     var grid = document.getElementById('grid');
     if (!grid) return;
-    fetch(window.location.pathname + window.location.search, { headers: {'X-Requested-With':'XMLHttpRequest'} })
+    var url = window.location.pathname + window.location.search +
+              (window.location.search ? '&' : '?') + 'nocache=' + Date.now();
+    fetch(url, { headers: {'X-Requested-With':'XMLHttpRequest'} })
     .then(r => r.text())
     .then(html => {
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var novo = doc.getElementById('grid');
         if (novo && novo.innerHTML) grid.innerHTML = novo.innerHTML;
+        // Atualiza o total de ofertas
+        var n = doc.querySelector('.stats-count');
+        if (n) {
+            var st = document.querySelector('.stats-count');
+            if (st && st.innerHTML !== n.innerHTML) st.innerHTML = n.innerHTML;
+        }
         // Atualiza o timer
         var t = document.getElementById('update-timer');
         if (t) t.textContent = 'Atualizando novas ofertas em: 30';

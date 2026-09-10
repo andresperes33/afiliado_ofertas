@@ -221,33 +221,6 @@ const form = document.querySelector('.search-form');
                 carregar('/promos/?' + dados + '#grid');
             });
         }
-
-        setTimeout(function () { window.location.reload(); }, 60000);
-
-        // ─── Cronômetro regressivo para atualização ───────────────────────────
-        (function () {
-            var timerEl = document.getElementById('update-timer');
-            if (!timerEl) return;
-            var segundos = 60; // intervalo em segundos
-            function atualizar() {
-                var min = Math.floor(segundos / 60);
-                var sec = segundos % 60;
-                timerEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec + ' até atualizar';
-                segundos--;
-                if (segundos < 0) segundos = 60;
-            }
-            atualizar();
-            setInterval(atualizar, 1000);
-        })();
-                var intervalo = 60;  // minutos
-
-                function iniciarVerifica() {
-                    setInterval(checkNewPromos, intervalo * 60 * 1000);
-                }
-
-                iniciarVerifica();
-            }
-        })();
     })();
 </script>
 {% endblock %}
