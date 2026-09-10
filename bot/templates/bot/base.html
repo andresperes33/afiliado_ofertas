@@ -359,7 +359,7 @@ document.addEventListener('click', function (e) {
     if (!t) return;
     var s = 30;
     function tick() {
-        t.textContent = 'Site atualiza em: ' + s;
+        t.textContent = 'Atualizando novas ofertas em: ' + s;
         s--;
         if (s < 0) s = 30;
     }
@@ -378,7 +378,7 @@ setTimeout(function () {
         if (novo && novo.innerHTML) grid.innerHTML = novo.innerHTML;
         // Atualiza o timer
         var t = document.getElementById('update-timer');
-        if (t) t.textContent = 'Site atualiza em: 30';
+        if (t) t.textContent = 'Atualizando novas ofertas em: 30';
     })
     .catch(function(){});
 }, 30000);</script>
