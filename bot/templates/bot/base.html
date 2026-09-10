@@ -65,6 +65,8 @@
 #btnAppQr:hover{transform:translateY(-2px);opacity:0.85;}
 #btnAppQr:hover i{color:#5a9400!important;}
 .primary-nav{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.97);border-bottom:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 32px rgba(0,0,0,0.35);}
+.mobile-menu-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#76b900;margin:10px 16px 4px;}
+@media(max-width:768px){.nav-links{display:none;}.nav-burger{display:flex;}.utility-bar{display:none;}.mobile-menu{top:0!important;}.mobile-menu-inner{padding-top:120px!important;}}
 </style>
 
 <!-- Top Banner WhatsApp / Telegram -->
@@ -115,15 +117,18 @@
                 </button>
             </div>
         </div>
-        <div class="mobile-menu" id="mobileMenu">
-            <div class="mobile-menu-inner">
-                <a href="/promos/" class="mobile-link {% block nav_promos_mobile %}active{% endblock %}"><i class="fas fa-store"></i> Promoções</a>
-                <a href="{% url 'sobre' %}" class="mobile-link"><i class="fas fa-info-circle"></i> Sobre</a>
-                <a href="{% url 'contato' %}" class="mobile-link"><i class="fas fa-envelope"></i> Contato</a>
-            </div>
-        </div>
     {% block nav_filters %}{% endblock %}
 </nav>
+
+<div class="mobile-menu" id="mobileMenu">
+    <div class="mobile-menu-inner">
+        <div class="mobile-menu-label">Menu</div>
+        <a href="#" class="mobile-link" id="btnAppQrMobile"><i class="fas fa-mobile-alt"></i> Baixar o app</a>
+        <a href="/promos/" class="mobile-link {% block nav_promos_mobile %}active{% endblock %}"><i class="fas fa-store"></i> Promoções</a>
+        <a href="{% url 'sobre' %}" class="mobile-link"><i class="fas fa-info-circle"></i> Sobre</a>
+        <a href="{% url 'contato' %}" class="mobile-link"><i class="fas fa-envelope"></i> Contato</a>
+    </div>
+</div>
 
 {% block breadcrumb %}{% endblock %}
 
