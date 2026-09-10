@@ -211,7 +211,7 @@
             btn.disabled = false;
         });
 
-        const form = document.querySelector('.search-form');
+const form = document.querySelector('.search-form');
         if (form) {
             form.addEventListener('submit', function (e) {
                 e.preventDefault();
@@ -219,10 +219,56 @@
                 carregar('/promos/?' + dados + '#grid');
             });
         }
-    })();
 
-    {% if periodo == 'hoje' %}
-    setTimeout(() => location.reload(), 1 * 60 * 1000);
-    {% endif %}
+        // ─── Auto-refresh automático sem reload a página ───────────────────────────
+        (function () {
+            let lastCount = {{ total }};
+            let manualLastCount = lastCount;
+
+            function checkNewPromos() {
+                const todayDate = new Date();
+                const todosMeses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+                const formato = '{day}/{month}/{year} {hour}:{minute}';
+                const todayStr = todayDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const hora = String(todayDate.getHours()).padStart(2, '0');
+                const minuto = String(todayDate.getMinutes()).padStart(2, '0');
+
+                const urlParams = new URLSearchParams(window.location.search);
+                params = urlParams.toString();
+
+                fetch('/promos/stats/?periodo=' + periodo + '&' + params, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => {
+                    if (!res.ok) return;
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.total > lastCount && data.total > manualLastCount) {
+                        manualLastCount = data.total;
+                        carregar('/promos/?' + params + '#grid');
+                    }
+                    lastCount = data.total;
+                })
+                .catch(err => {
+                    // Mantém odometer, ignora erro tentar novamente em 60 segundos
+                });
+            }
+
+            const periodo = '{{ periodo }}';
+            const urlParams = new URLSearchParams(window.location.search);
+            params = urlParams.toString();
+
+            if (periodo && params) {
+                var intervalo = 60;  // minutos
+
+                function iniciarVerifica() {
+                    setInterval(checkNewPromos, intervalo * 60 * 1000);
+                }
+
+                iniciarVerifica();
+            }
+        })();
+    })();
 </script>
 {% endblock %}
