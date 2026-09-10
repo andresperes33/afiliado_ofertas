@@ -159,28 +159,25 @@ button, input { font-family: inherit; }
     max-width: 420px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    height: 42px;
+    gap: 8px;
+    height: 38px;
     padding: 0 16px;
-    background: linear-gradient(180deg, #161616 0%, #121212 100%);
-    border: 1.5px solid rgba(118,185,0,0.35);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
     border-radius: 999px;
-    box-shadow: 0 2px 12px rgba(118,185,0,0.08), inset 0 1px 0 rgba(255,255,255,0.04);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    transition: border-color 0.2s ease, background 0.2s ease;
     font-family: 'Inter', sans-serif;
 }
 .nav-search-form:focus-within {
-    border-color: var(--primary);
-    background: #1a2000;
-    box-shadow: 0 0 0 3px rgba(118,185,0,0.12), 0 4px 16px rgba(118,185,0,0.18);
+    border-color: rgba(118,185,0,0.5);
+    background: rgba(255,255,255,0.08);
 }
-.nav-search-form i { color: var(--primary); font-size: 15px; flex-shrink: 0; opacity: 0.9; }
+.nav-search-form i { color: var(--primary); font-size: 14px; flex-shrink: 0; }
 .nav-search-form input {
     flex: 1; min-width: 0; background: none; border: none; outline: none;
-    color: #fff; font-size: 15px; font-family: inherit;
-    letter-spacing: -0.01em;
+    color: rgba(255,255,255,0.85); font-size: 14px; font-family: inherit;
 }
-.nav-search-form input::placeholder { color: rgba(255,255,255,0.45); font-weight: 400; }
+.nav-search-form input::placeholder { color: rgba(255,255,255,0.4); }
 .nav-burger:hover { border-color: rgba(118,185,0,0.6); }
 .nav-burger .burger-bar {
     display: block;
