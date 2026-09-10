@@ -91,14 +91,14 @@
                 <span class="brand-mark"></span>
                 <span class="brand-name">Promoções <strong>Nitro Ofertas</strong></span>
             </a>
-            <form class="nav-search-form" method="get" action="/promos/" role="search" style="order:2;">
-                <i class="fas fa-search"></i>
+            <form class="nav-search-form" method="get" action="/promos/" role="search" style="order:2;display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:999px;max-width:420px;flex:1;font-family:'Inter',sans-serif;">
+                <i class="fas fa-search" style="color:#76b900;font-size:14px;flex-shrink:0;"></i>
                 {% if request.GET.periodo %}<input type="hidden" name="periodo" value="{{ request.GET.periodo }}">{% endif %}
                 {% if request.GET.loja %}<input type="hidden" name="loja" value="{{ request.GET.loja }}">{% endif %}
-                <input type="text" name="q" placeholder="Pesquisar oferta" value="{{ request.GET.q }}" aria-label="Pesquisar oferta" autocomplete="off">
+                <input type="text" name="q" placeholder="Pesquisar oferta" value="{{ request.GET.q }}" aria-label="Pesquisar oferta" autocomplete="off" style="flex:1;min-width:0;background:none;border:none;outline:none;color:rgba(255,255,255,0.85);font-size:14px;font-family:inherit;">
             </form>
-            <a href="#" class="nav-icon-item" id="btnAppQr" style="order:3;flex-direction:column;align-items:center;text-decoration:none;color:var(--on-dark);gap:2px;padding:0 8px;" aria-label="Baixar o app">
-                <i class="fas fa-mobile-alt" style="font-size:20px;color:var(--primary);"></i>
+            <a href="#" class="nav-icon-item" id="btnAppQr" style="order:3;display:flex;flex-direction:column;align-items:center;text-decoration:none;color:rgba(255,255,255,0.85);gap:2px;padding:0 8px;" aria-label="Baixar o app">
+                <i class="fas fa-mobile-alt" style="font-size:20px;color:#76b900;"></i>
                 <span style="font-size:10px;font-weight:600;letter-spacing:.02em;white-space:nowrap;">Baixar app</span>
             </a>
             <div class="nav-actions" style="order:4;">
