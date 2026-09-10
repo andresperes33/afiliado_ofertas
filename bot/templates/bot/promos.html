@@ -41,11 +41,6 @@
             </select>
         </div>
         {% endif %}
-        <form class="search-form" method="get" action="/promos/">
-            {% if periodo != 'hoje' %}<input type="hidden" name="periodo" value="{{ periodo }}">{% endif %}
-            <input class="search-input" type="text" name="q" placeholder="Buscar promoção..." value="{{ q }}">
-            <button class="btn-search" type="submit" aria-label="Buscar"><i class="fas fa-search"></i></button>
-        </form>
     </div>
 </div>
 
