@@ -65,6 +65,8 @@
 #btnAppQr:hover{transform:translateY(-2px);opacity:0.85;}
 #btnAppQr:hover i{color:#5a9400!important;}
 .primary-nav{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.97);border-bottom:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 32px rgba(0,0,0,0.35);}
+.qr-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.72);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}.qr-modal.open{opacity:1;visibility:visible}.qr-modal-box{position:relative;background:#0d0d0d;border-radius:14px;padding:34px 30px 28px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}.qr-modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border:none;background:rgba(255,255,255,.06);border-radius:50%;font-size:18px;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;transition:background .2s,color .2s}.qr-modal-close:hover{background:rgba(255,255,255,.1);color:#fff}.qr-modal-box h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:6px}.qr-modal-sub{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:18px}.qr-modal-box img{display:block;margin:0 auto 16px;border:1px solid rgba(255,255,255,.15);border-radius:12px}.qr-modal-hint{font-size:12px;color:rgba(255,255,255,.35);line-height:1.5}.qr-install-btn{width:100%;margin:4px 0 16px;}
+.qr-modal-qr{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.72);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}.qr-modal-qr.open{opacity:1;visibility:visible}.qr-modal-qr .qr-modal-box{position:relative;background:#0d0d0d;border-radius:14px;padding:34px 30px 28px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}.qr-modal-qr .qr-modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border:none;background:rgba(255,255,255,.06);border-radius:50%;font-size:18px;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;transition:background .2s,color .2s}.qr-modal-qr .qr-modal-close:hover{background:rgba(255,255,255,.1);color:#fff}
 .mobile-menu-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#76b900;margin:10px 16px 4px;}
 @media(max-width:768px){.nav-inner{flex-wrap:wrap;gap:8px 16px;padding:10px 16px;height:auto;}.brand{order:1!important;flex:1 1 auto;min-width:0;}.brand-name{font-size:21px;}.nav-actions{order:2!important;margin-left:auto;}.nav-search-form{order:3!important;flex-basis:100%;max-width:100%;}#btnAppQr,.nav-links{display:none!important;}.nav-burger{display:flex!important;}.utility-bar{display:none;}.nav-filters-bar{display:none!important;}.mobile-menu{top:0!important;}.mobile-menu-inner{padding-top:120px!important;}}
 </style>
@@ -127,6 +129,25 @@
         <a href="/promos/" class="mobile-link {% block nav_promos_mobile %}active{% endblock %}"><i class="fas fa-store"></i> Promoções</a>
         <a href="{% url 'sobre' %}" class="mobile-link"><i class="fas fa-info-circle"></i> Sobre</a>
         <a href="{% url 'contato' %}" class="mobile-link"><i class="fas fa-envelope"></i> Contato</a>
+    </div>
+</div>
+
+<div class="qr-modal" id="qrModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="qr-modal-box">
+        <button type="button" class="qr-modal-close" id="qrModalClose" aria-label="Fechar">&times;</button>
+        <h3>Baixar o app Promoções Nitro Ofertas</h3>
+        <p class="qr-modal-sub">Instale o app no seu celular e receba as ofertas em um toque.</p>
+        <button type="button" class="btn btn-primary qr-install-btn" id="btnInstalarApp"><i class="fas fa-download"></i> Baixar agora</button>
+        <p class="qr-modal-hint" id="qrInstallHint">No iPhone/iPad: toque em <strong>Compartilhar</strong> e depois em <strong>Adicionar à Tela de Início</strong>.</p>
+    </div>
+</div>
+
+<div class="qr-modal-qr" id="qrModalDesktop" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="qr-modal-box">
+        <button type="button" class="qr-modal-close" id="qrModalDesktopClose" aria-label="Fechar">&times;</button>
+        <h3>Economize até 3x mais!</h3>
+        <p class="qr-modal-sub">Escaneie o QR Code e baixe o app para poder aproveitar ainda mais 💰</p>
+        <img src="{% static 'bot/qr-app.png' %}" alt="QR Code para baixar o app" style="max-width:220px; margin:0 auto 12px; display:block;">
     </div>
 </div>
 
@@ -212,6 +233,76 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+
+// ─── Modal QR/Instalar app (baixar o app) ──────────────────────
+(function () {
+    var botoes = document.querySelectorAll('#btnAppQr, #btnAppQrMobile');
+    var modal = document.getElementById('qrModal');
+    var modalDesktop = document.getElementById('qrModalDesktop');
+    var fecharBtn = document.getElementById('qrModalClose');
+    var fecharBtnDesktop = document.getElementById('qrModalDesktopClose');
+    var btnInstalar = document.getElementById('btnInstalarApp');
+    var hint = document.getElementById('qrInstallHint');
+    if (!modal) return;
+
+    var installPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        installPrompt = e;
+    });
+    if (hint) hint.style.display = 'none';
+
+    function abrir() {
+        modal.classList.add('open');
+        modal.setAttribute('aria-hidden', 'false');
+        if (installPrompt && hint) hint.style.display = 'none';
+    }
+    function fechar() {
+        modal.classList.remove('open');
+        modal.setAttribute('aria-hidden', 'true');
+    }
+    function abrirDesktop() {
+        if (!modalDesktop) return;
+        modalDesktop.classList.add('open');
+        modalDesktop.setAttribute('aria-hidden', 'false');
+    }
+    function fecharDesktop() {
+        if (!modalDesktop) return;
+        modalDesktop.classList.remove('open');
+        modalDesktop.setAttribute('aria-hidden', 'true');
+    }
+    botoes.forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (btn.id === 'btnAppQr' && window.innerWidth >= 1024) {
+                abrirDesktop();
+            } else {
+                abrir();
+            }
+        });
+    });
+    if (btnInstalar) {
+        btnInstalar.addEventListener('click', function () {
+            if (installPrompt) {
+                installPrompt.prompt();
+                installPrompt.userChoice.then(function () { installPrompt = null; });
+            } else if (hint) {
+                hint.style.display = 'block';
+            }
+        });
+    }
+    if (fecharBtn) fecharBtn.addEventListener('click', fechar);
+    if (modal) modal.addEventListener('click', function (e) {
+        if (e.target === modal) fechar();
+    });
+    if (fecharBtnDesktop) fecharBtnDesktop.addEventListener('click', fecharDesktop);
+    if (modalDesktop) modalDesktop.addEventListener('click', function (e) {
+        if (e.target === modalDesktop) fecharDesktop();
+    });
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { fechar(); fecharDesktop(); }
+    });
+})();
 
 // ─── Compartilhar card de produto ──────────────────────────────
 document.addEventListener('click', function (e) {
