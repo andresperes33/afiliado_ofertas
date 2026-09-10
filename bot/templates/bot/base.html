@@ -87,16 +87,23 @@
 
     <nav class="primary-nav">
         <div class="nav-inner">
-            <a href="/promos/" class="brand">
+            <form class="nav-search-form" method="get" action="/promos/" role="search" style="order:1;max-width:420px;flex:0 1 420px;">
+                <i class="fas fa-search"></i>
+                {% if request.GET.periodo %}<input type="hidden" name="periodo" value="{{ request.GET.periodo }}">{% endif %}
+                {% if request.GET.loja %}<input type="hidden" name="loja" value="{{ request.GET.loja }}">{% endif %}
+                <input type="text" name="q" placeholder="Pesquisar oferta" value="{{ request.GET.q }}" aria-label="Pesquisar oferta" autocomplete="off">
+            </form>
+            <a href="/promos/" class="brand" style="order:2;">
                 <span class="brand-mark"></span>
                 <span class="brand-name">Promoções <strong>Nitro Ofertas</strong></span>
             </a>
-            <div class="nav-links" id="navLinks">
-                <a href="/promos/" class="nav-link {% block nav_promos %}active{% endblock %}">Promoções</a>
-                <a href="{% url 'sobre' %}" class="nav-link">Sobre</a>
-                <a href="{% url 'contato' %}" class="nav-link">Contato</a>
+            <div class="nav-icon-links" style="order:3;">
+                <a href="#" class="nav-icon-item" id="btnAppQr" aria-label="Baixar o app">
+                    <i class="fas fa-mobile-alt"></i>
+                    <span>Baixar app</span>
+                </a>
             </div>
-            <div class="nav-actions">
+            <div class="nav-actions" style="order:4;">
                 <button type="button" class="nav-burger" id="navBurger" aria-label="Abrir menu" aria-expanded="false" aria-controls="mobileMenu">
                     <span class="burger-bar"></span>
                     <span class="burger-bar"></span>
