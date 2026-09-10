@@ -828,9 +828,9 @@ def texto_card(texto):
 
     Mantém tudo exatamente como postado (cabeçalho tipo '🇧🇷 Aliexpress',
     'Produto no Brasil', '12x sem juros', emojis, valor, cupom), removendo
-    apenas o marcador fixo 'Postagem original' e toda a seção de links
-    (URLs + marcadores tipo '⬇️', '🥇 Link com moedas:'). Retorna a
-    mensagem multi-linha completa."""
+    apenas o marcador fixo 'Postagem original', linhas de instrução de cupom
+    e toda a seção de links (URLs + marcadores tipo '⬇️', '🥇 Link com moedas:').
+    Retorna a mensagem multi-linha completa."""
     if not texto:
         return ''
     linhas = []
@@ -848,6 +848,9 @@ def texto_card(texto):
             break
         if baixa in ('postagem original', 'postagem original ',
                      'postagem', 'a postagem'):
+            continue
+        # pula linhas que são só instrução de cupom/código curto
+        if _eh_linha_cupom_instrucao(baixa) and len(limpa) < 60:
             continue
         linhas.append(limpa)
     return '\n'.join(linhas).strip()
