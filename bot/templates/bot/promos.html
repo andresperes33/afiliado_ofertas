@@ -86,7 +86,8 @@
             {% include 'bot/_promo_grid.html' %}
         </div>
         {% if tem_mais %}
-        <div class="load-more-wrap">
+        <div id="update-timer" style="text-align:center;color:rgba(255,255,255,.4);font-size:12px;padding:4px 0;"></div>
+<div class="load-more-wrap">
             <button id="btn-ver-mais" class="btn btn-primary" data-offset="{{ offset }}" data-limite="{{ LIMITE }}">
                 Ver mais promoções <i class="fas fa-arrow-down"></i>
             </button>
@@ -259,7 +260,21 @@ const form = document.querySelector('.search-form');
             const urlParams = new URLSearchParams(window.location.search);
             params = urlParams.toString();
 
-            if (periodo && params) {
+        // ─── Cronômetro regressivo para atualização ───────────────────────────
+        (function () {
+            var timerEl = document.getElementById('update-timer');
+            if (!timerEl) return;
+            var segundos = 60; // intervalo em segundos
+            function atualizar() {
+                var min = Math.floor(segundos / 60);
+                var sec = segundos % 60;
+                timerEl.textContent = min + ':' + (sec < 10 ? '0' : '') + sec + ' até atualizar';
+                segundos--;
+                if (segundos < 0) segundos = 60;
+            }
+            atualizar();
+            setInterval(atualizar, 1000);
+        })();
                 var intervalo = 60;  // minutos
 
                 function iniciarVerifica() {
