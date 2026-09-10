@@ -353,6 +353,20 @@ document.addEventListener('click', function (e) {
 })();
 
 // Auto-refresh todo site a cada 60 segundos
+// Contador regressivo 30s
+(function () {
+    var t = document.getElementById('update-timer');
+    if (!t) return;
+    var s = 30;
+    function tick() {
+        t.textContent = 'Site atualiza em: ' + s;
+        s--;
+        if (s < 0) s = 30;
+    }
+    tick();
+    setInterval(tick, 1000);
+})();
+
 setTimeout(function () {
     var grid = document.getElementById('grid');
     if (!grid) return;
@@ -362,8 +376,11 @@ setTimeout(function () {
         var doc = new DOMParser().parseFromString(html, 'text/html');
         var novo = doc.getElementById('grid');
         if (novo && novo.innerHTML) grid.innerHTML = novo.innerHTML;
+        // Atualiza o timer
+        var t = document.getElementById('update-timer');
+        if (t) t.textContent = 'Site atualiza em: 30';
     })
     .catch(function(){});
-}, 60000);</script>
+}, 30000);</script>
 </body>
 </html>
