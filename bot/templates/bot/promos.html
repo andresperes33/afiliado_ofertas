@@ -221,34 +221,10 @@ const form = document.querySelector('.search-form');
             });
         }
 
-        // ─── Auto-refresh: verifica a cada 60s e atualiza grid se mudou ────────
-        (function () {
-            var timerEl = document.getElementById('update-timer');
-            var segundos = 60;
-            function tick() {
-                if (timerEl) timerEl.textContent = Math.floor(segundos/60)+':' + (segundos%60 < 10 ? '0' : '') + (segundos%60) + ' até atualizar';
-                segundos--;
-                if (segundos <= 0) segundos = 60;
-            }
-            setInterval(tick, 1000);
-            tick();
-
-            // Atualiza a página a cada 60 segundos via AJAX
-            setInterval(function () {
-                var grid = document.getElementById('grid');
-                if (!grid) return;
-                fetch(window.location.pathname + window.location.search, { headers: {'X-Requested-With':'XMLHttpRequest'} })
-                .then(r => r.text())
-                .then(html => {
-                    var doc = new DOMParser().parseFromString(html, 'text/html');
-                    var novoGrid = doc.getElementById('grid');
-                    if (novoGrid && novoGrid.innerHTML.length > 0 && novoGrid.innerHTML !== grid.innerHTML) {
-                        grid.innerHTML = novoGrid.innerHTML;
-                    }
-                })
-                .catch(function () {});
-            }, 60 * 1000);
-        })();
+        // ─── Atualiza a página automaticamente a cada 60 segundos ───────────
+        setInterval(function () {
+            window.location.reload();
+        }, 60 * 1000);
 
         // ─── Cronômetro regressivo para atualização ───────────────────────────
         (function () {
