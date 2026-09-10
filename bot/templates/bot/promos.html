@@ -3,6 +3,38 @@
 
 {% block title %}Promoções | Promoções Nitro Ofertas{% endblock %}
 
+{% block nav_filters %}
+<div class="nav-filters-bar">
+    <div class="nav-filters-inner">
+        <span class="nav-filter-label">PERÍODO</span>
+        <div class="cs-select" data-target="filtro-periodo">
+            <div class="cs-selected">{% if periodo == 'hoje' %}Hoje{% elif periodo == 'semana' %}Esta Semana{% elif periodo == 'mes' %}Este Mês{% else %}Tudo{% endif %}</div>
+            <svg class="cs-arrow" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#76b900"/></svg>
+            <div class="cs-list">
+                <div class="cs-opt" data-val="hoje">Hoje</div>
+                <div class="cs-opt" data-val="semana">Esta Semana</div>
+                <div class="cs-opt" data-val="mes">Este Mês</div>
+                <div class="cs-opt" data-val="tudo">Tudo</div>
+            </div>
+        </div>
+        {% if lojas %}
+        <span class="nav-filter-label">LOJA</span>
+        <div class="cs-select" data-target="filtro-loja">
+            <div class="cs-selected">{% if loja_ativa %}{{ loja_ativa }}{% else %}Todas{% endif %}</div>
+            <svg class="cs-arrow" width="10" height="6" viewBox="0 0 10 6"><path d="M0 0l5 6 5-6z" fill="#76b900"/></svg>
+            <div class="cs-list">
+                <div class="cs-opt" data-val="">Todas</div>
+                {% for lojanome in lojas %}
+                <div class="cs-opt" data-val="{{ lojanome }}">{{ lojanome }}</div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        <input type="hidden" id="filtro-periodo" value="{{ periodo }}">
+        <input type="hidden" id="filtro-loja" value="{{ loja_ativa|default:'' }}">
+    </div>
+</div>
+{% endblock %}
 
 {% block content %}
 
@@ -116,8 +148,7 @@
             } catch (e) { }
         }
 
-        document.addEventListener('change', function (e) {
-            if (!e.target || !e.target.classList || !e.target.classList.contains('filter-select')) return;
+        function aplicarFiltros() {
             const periodo = document.getElementById('filtro-periodo');
             const loja = document.getElementById('filtro-loja');
             const params = new URLSearchParams(window.location.search);
@@ -125,6 +156,35 @@
             if (loja && loja.value) { params.set('loja', loja.value); } else { params.delete('loja'); }
             params.delete('cat');
             carregar('/promos/?' + params.toString() + '#grid');
+        }
+
+        document.querySelectorAll('.cs-select').forEach(function (sel) {
+            var trigger = sel.querySelector('.cs-selected');
+            var arrow = sel.querySelector('.cs-arrow');
+            var list = sel.querySelector('.cs-list');
+            var hidden = document.getElementById(sel.dataset.target);
+            var opts = sel.querySelectorAll('.cs-opt');
+
+            trigger.parentElement.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var wasOpen = sel.classList.contains('open');
+                document.querySelectorAll('.cs-select.open').forEach(function (s) { s.classList.remove('open'); });
+                if (!wasOpen) sel.classList.add('open');
+            });
+
+            opts.forEach(function (opt) {
+                opt.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    trigger.textContent = opt.textContent;
+                    hidden.value = opt.dataset.val;
+                    sel.classList.remove('open');
+                    aplicarFiltros();
+                });
+            });
+        });
+
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.cs-select.open').forEach(function (s) { s.classList.remove('open'); });
         });
 
         document.addEventListener('click', async function (e) {
