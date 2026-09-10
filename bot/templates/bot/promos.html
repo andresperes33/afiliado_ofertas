@@ -221,10 +221,7 @@ const form = document.querySelector('.search-form');
             });
         }
 
-        // ─── Atualiza a página automaticamente a cada 60 segundos ───────────
-        setInterval(function () {
-            window.location.reload();
-        }, 60 * 1000);
+        setTimeout(function () { window.location.reload(); }, 60000);
 
         // ─── Cronômetro regressivo para atualização ───────────────────────────
         (function () {
