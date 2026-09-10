@@ -1,7 +1,7 @@
 {
-  "name": "Nitro Ofertas — Promoções em geral",
-  "short_name": "Nitro Ofertas",
-  "description": "As melhores promoções encontradas pelo bot Nitro Ofertas. Roupas, ferramentas, casa, tecnologia e muito mais.",
+  "name": "Promoções Nitro Ofertas — Promoções em geral",
+  "short_name": "Promoções Nitro Ofertas",
+  "description": "As melhores promoções encontradas pelo bot Promoções Nitro Ofertas. Roupas, ferramentas, casa, tecnologia e muito mais.",
   "start_url": "/promos/",
   "scope": "/",
   "display": "standalone",
