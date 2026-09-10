@@ -64,8 +64,6 @@
 #btnAppQr{transition:transform 0.2s ease,opacity 0.2s ease;}
 #btnAppQr:hover{transform:translateY(-2px);opacity:0.85;}
 #btnAppQr:hover i{color:#5a9400!important;}
-header{position:sticky;top:8px;z-index:1000;margin:0 12px;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.08);}
-.primary-nav{position:static!important;}
 </style>
 
 <!-- Top Banner WhatsApp / Telegram -->
@@ -123,8 +121,8 @@ header{position:sticky;top:8px;z-index:1000;margin:0 12px;border-radius:16px;ove
             </div>
         </div>
     </nav>
+    {% block nav_filters %}{% endblock %}
 </header>
-{% block nav_filters %}{% endblock %}
 
 {% block breadcrumb %}{% endblock %}
 
