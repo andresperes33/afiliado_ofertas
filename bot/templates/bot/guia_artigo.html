@@ -12,17 +12,6 @@
 {% if artigo.imagem %}<meta property="og:image" content="{{ SITE_URL }}{{ artigo.imagem.url }}">{% endif %}
 {% endblock %}
 
-{% block breadcrumb %}
-<div class="breadcrumb-bar">
-    <div class="breadcrumb-inner">
-        <a href="/promos/">Início</a>
-        <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-        <a href="{% url 'blog' %}">Blog</a>
-        <span class="breadcrumb-sep"><i class="fas fa-chevron-right"></i></span>
-        <span class="breadcrumb-current">{{ artigo.titulo|truncatechars:40 }}</span>
-    </div>
-</div>
-{% endblock %}
 
 {% block content %}
 
