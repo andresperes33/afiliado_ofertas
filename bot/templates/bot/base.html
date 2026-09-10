@@ -64,6 +64,7 @@
 #btnAppQr{transition:transform 0.2s ease,opacity 0.2s ease;}
 #btnAppQr:hover{transform:translateY(-2px);opacity:0.85;}
 #btnAppQr:hover i{color:#5a9400!important;}
+.primary-nav{position:sticky;top:0;z-index:100;background:rgba(13,13,13,0.97);border-bottom:1px solid rgba(255,255,255,0.08);box-shadow:0 12px 32px rgba(0,0,0,0.35);}
 </style>
 
 <!-- Top Banner WhatsApp / Telegram -->
@@ -88,8 +89,9 @@
             </div>
         </div>
     </div>
+</header>
 
-    <nav class="primary-nav">
+<nav class="primary-nav">
         <div class="nav-inner">
             <a href="/promos/" class="brand" style="order:1;">
                 <span class="brand-mark"></span>
@@ -120,9 +122,8 @@
                 <a href="{% url 'contato' %}" class="mobile-link"><i class="fas fa-envelope"></i> Contato</a>
             </div>
         </div>
-    </nav>
     {% block nav_filters %}{% endblock %}
-</header>
+</nav>
 
 {% block breadcrumb %}{% endblock %}
 
