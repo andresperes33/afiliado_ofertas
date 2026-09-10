@@ -91,12 +91,7 @@
                 <span class="brand-mark"></span>
                 <span class="brand-name">Promoções <strong>Nitro Ofertas</strong></span>
             </a>
-            <form class="nav-search-form" method="get" action="/promos/" role="search" style="order:2;max-width:420px;flex:0 1 420px;">
-                <i class="fas fa-search"></i>
-                {% if request.GET.periodo %}<input type="hidden" name="periodo" value="{{ request.GET.periodo }}">{% endif %}
-                {% if request.GET.loja %}<input type="hidden" name="loja" value="{{ request.GET.loja }}">{% endif %}
-                <input type="text" name="q" placeholder="Pesquisar oferta" value="{{ request.GET.q }}" aria-label="Pesquisar oferta" autocomplete="off">
-            </form>
+            <div class="nav-icon-links" style="order:3;">
             <div class="nav-icon-links" style="order:3;">
                 <a href="#" class="nav-icon-item" id="btnAppQr" aria-label="Baixar o app">
                     <i class="fas fa-mobile-alt"></i>
