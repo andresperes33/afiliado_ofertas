@@ -348,9 +348,13 @@ document.addEventListener('click', function (e) {
         link.addEventListener('click', fechar);
     });
     document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') fechar();
+        if (e.key === 'Escape') { fechar(); fecharDesktop(); }
     });
 })();
-</script>
+
+// Auto-refresh todo site a cada 60 segundos
+setTimeout(function () {
+    window.location.reload();
+}, 60000);</script>
 </body>
 </html>
