@@ -52,7 +52,7 @@
 
 <style>
 .top-banner{display:flex;width:100%;height:52px;text-decoration:none;font-family:'Inter',sans-serif;font-weight:700;color:#fff;align-items:center;justify-content:center;border-radius:2px;overflow:hidden;box-shadow:0 2px 0 rgba(0,0,0,.2);cursor:pointer;}
-.banner-half{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;height:100%;font-size:16px;letter-spacing:.02em;padding:0 12px;}
+.banner-half{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;height:100%;font-size:16px;letter-spacing:.02em;padding:0 12px;text-decoration:none;color:#fff;}
 .banner-whatsapp{background:#25D366;}
 .banner-telegram{background:#0088cc;}
 .banner-half i.fa-arrow-right{font-size:10px;margin-left:2px;opacity:.9;}
@@ -68,22 +68,23 @@
 .qr-modal{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.72);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}.qr-modal.open{opacity:1;visibility:visible}.qr-modal-box{position:relative;background:#0d0d0d;border-radius:14px;padding:34px 30px 28px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}.qr-modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border:none;background:rgba(255,255,255,.06);border-radius:50%;font-size:18px;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;transition:background .2s,color .2s}.qr-modal-close:hover{background:rgba(255,255,255,.1);color:#fff}.qr-modal-box h3{font-size:20px;font-weight:700;color:#fff;margin-bottom:6px}.qr-modal-sub{font-size:14px;color:rgba(255,255,255,.5);margin-bottom:18px}.qr-modal-box img{display:block;margin:0 auto 16px;border:1px solid rgba(255,255,255,.15);border-radius:12px}.qr-modal-hint{font-size:12px;color:rgba(255,255,255,.35);line-height:1.5}.qr-install-btn{width:100%;margin:4px 0 16px;}
 .qr-modal-qr{position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.72);opacity:0;visibility:hidden;transition:opacity .25s ease,visibility .25s}.qr-modal-qr.open{opacity:1;visibility:visible}.qr-modal-qr .qr-modal-box{position:relative;background:#0d0d0d;border-radius:14px;padding:34px 30px 28px;max-width:360px;width:100%;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.45)}.qr-modal-qr .qr-modal-close{position:absolute;top:12px;right:12px;width:34px;height:34px;border:none;background:rgba(255,255,255,.06);border-radius:50%;font-size:18px;color:rgba(255,255,255,.5);cursor:pointer;line-height:1;transition:background .2s,color .2s}.qr-modal-qr .qr-modal-close:hover{background:rgba(255,255,255,.1);color:#fff}
 .mobile-menu-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#76b900;margin:10px 16px 4px;}
+.footer-link i{margin-right:6px;opacity:.85;}
 @media(max-width:768px){.nav-inner{flex-wrap:wrap;gap:8px 16px;padding:10px 16px;height:auto;}.brand{order:1!important;flex:1 1 auto;min-width:0;}.brand-name{font-size:21px;}.nav-actions{order:2!important;margin-left:auto;}.nav-search-form{order:3!important;flex-basis:100%;max-width:100%;}#btnAppQr,.nav-links{display:none!important;}.nav-burger{display:flex!important;}.utility-bar{display:none;}.nav-filters-bar{display:none!important;}.mobile-menu{top:0!important;}.mobile-menu-inner{padding-top:120px!important;}}
 </style>
 
 <!-- Top Banner WhatsApp / Telegram -->
-<a href="https://t.me/nitroofertas_achadinhos" class="top-banner" aria-label="Entrar no grupo de ofertas no Telegram" target="_blank" rel="noopener noreferrer">
-    <div class="banner-half banner-whatsapp">
+<div class="top-banner">
+    <a href="https://chat.whatsapp.com/JRhCbVwMrMxFjtoZLILvAG" class="banner-half banner-whatsapp" aria-label="Entrar no grupo de ofertas no WhatsApp" target="_blank" rel="noopener noreferrer">
         <i class="fab fa-whatsapp" aria-hidden="true"></i>
         <span class="desktop-txt">Entre no grupo do WhatsApp <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
         <span class="mobile-txt">WhatsApp <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
-    </div>
-    <div class="banner-half banner-telegram">
+    </a>
+    <a href="https://t.me/nitroofertas_achadinhos" class="banner-half banner-telegram" aria-label="Entrar no canal de ofertas no Telegram" target="_blank" rel="noopener noreferrer">
         <i class="fab fa-telegram-plane" aria-hidden="true"></i>
         <span class="desktop-txt">Entre no canal do Telegram <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
         <span class="mobile-txt">Telegram <i class="fas fa-arrow-right" aria-hidden="true"></i></span>
-    </div>
-</a>
+    </a>
+</div>
 
 <header>
     <div class="utility-bar">
@@ -129,6 +130,7 @@
         <a href="/promos/" class="mobile-link {% block nav_promos_mobile %}active{% endblock %}"><i class="fas fa-store"></i> Promoções</a>
         <a href="{% url 'sobre' %}" class="mobile-link"><i class="fas fa-info-circle"></i> Sobre</a>
         <a href="{% url 'contato' %}" class="mobile-link"><i class="fas fa-envelope"></i> Contato</a>
+        <a href="https://chat.whatsapp.com/JRhCbVwMrMxFjtoZLILvAG" class="mobile-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp"></i> Grupo no WhatsApp</a>
     </div>
 </div>
 
@@ -177,6 +179,12 @@
             <a href="{% url 'contato' %}" class="footer-link">Contato</a>
             <a href="{% url 'termos' %}" class="footer-link">Termos de Uso</a>
             <a href="{% url 'privacy' %}" class="footer-link">Política de Privacidade</a>
+        </div>
+        <div>
+            <div class="footer-heading">Canais</div>
+            <a href="https://chat.whatsapp.com/JRhCbVwMrMxFjtoZLILvAG" class="footer-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-whatsapp" style="color:#25D366;"></i> Grupo no WhatsApp</a>
+            <a href="https://t.me/nitroofertas_achadinhos" class="footer-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-telegram-plane" style="color:#0088cc;"></i> Canal no Telegram</a>
+            <a href="https://www.instagram.com/nitro.ofertas.br/" class="footer-link" target="_blank" rel="noopener noreferrer"><i class="fab fa-instagram" style="color:#E4405F;"></i> Instagram</a>
         </div>
     </div>
     <div class="footer-legal">

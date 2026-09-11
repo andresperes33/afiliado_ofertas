@@ -15,7 +15,8 @@ _RODAPE_CANAIS_TEXTO = ""
 _RODAPE_CANAIS_HTML = """
 <div class="detail-channels">
     <div class="detail-label">📲 Canais da Nitro Ofertas</div>
-    <a href="https://t.me/nitroofertas_achadinhos" target="_blank" rel="noopener">📢 Grupo no Telegram</a>
+    <a href="https://chat.whatsapp.com/JRhCbVwMrMxFjtoZLILvAG" target="_blank" rel="noopener">📢 Grupo no WhatsApp</a>
+    <a href="https://t.me/nitroofertas_achadinhos" target="_blank" rel="noopener">📢 Canal no Telegram</a>
     <a href="https://www.instagram.com/nitro.ofertas.br/" target="_blank" rel="noopener">📸 Instagram</a>
 </div>
 """
