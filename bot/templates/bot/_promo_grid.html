@@ -16,11 +16,15 @@
     <a href="{% url 'promo_detail' promo.pk %}" class="promo-card-link">
         <div class="promo-card-thumb">
             {% if promo.imagem_url %}
-                <img src="{{ promo.imagem_url }}" alt="{{ promo.titulo }}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <img src="{{ promo.imagem_url }}" alt="{{ promo.titulo }}"
+                     width="640" height="360" decoding="async"
+                     {% if forloop.counter <= 4 %}fetchpriority="high"{% else %}loading="lazy"{% endif %}
+                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
                 <div class="no-img" style="display:none"><i class="fas fa-tag"></i></div>
             {% else %}
                 <div class="no-img"><i class="fas fa-tag"></i></div>
             {% endif %}
+            <span class="badge-tag card-badge">{{ promo.get_categoria_display }}</span>
         </div>
         <div class="card-body">
             {% if promo.texto_original|card_text %}
