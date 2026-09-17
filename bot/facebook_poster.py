@@ -9,24 +9,26 @@ GRAPH_URL = "https://graph.facebook.com/v26.0"
 
 
 def _mensagem_post(texto, pagina_url=''):
-    """Monta a mensagem do post: título + preço + link da oferta no site.
+    """Monta a mensagem do post: texto completo + link da oferta no site.
 
-    O texto já chega aqui sem o gancho: a 1ª linha é removida na captura
-    (monitor_offers.py), para valer em todos os canais.
+    Usa o texto COMPLETO do anúncio (título + preço 'De X por Y' + demais
+    linhas), não só o preço extraído. O texto já chega sem o gancho: a 1ª
+    linha é removida na captura (monitor_offers.py), para valer em todos os
+    canais.
     """
-    try:
-        from bot.services import _linha_titulo, _preco_do_texto
-        titulo = _linha_titulo(texto)[:150]
-        preco = _preco_do_texto(texto)
-    except Exception:
+    mensagem = (texto or '').strip()
+    if not mensagem:
         titulo = ''
         preco = ''
-
-    mensagem = (titulo or texto or '').strip()
-    if not mensagem:
-        mensagem = "Oferta imperdível"
-    if preco:
-        mensagem += f"\n{preco}"
+        try:
+            from bot.services import _linha_titulo, _preco_do_texto
+            titulo = _linha_titulo(texto or '')[:150]
+            preco = _preco_do_texto(texto or '')
+        except Exception:
+            pass
+        mensagem = (titulo or 'Oferta imperdível').strip()
+        if preco:
+            mensagem += f"\n{preco}"
     if pagina_url:
         mensagem += f"\n\n{pagina_url}"
     return mensagem.strip()
