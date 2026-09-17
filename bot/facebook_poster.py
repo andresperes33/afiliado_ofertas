@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import requests
 from django.conf import settings
 
@@ -30,7 +31,13 @@ def _mensagem_post(texto, pagina_url=''):
         if preco:
             mensagem += f"\n{preco}"
     if pagina_url:
-        mensagem += f"\n\n{pagina_url}"
+        # Evita repetir a URL caso ela já esteja no texto (o canal manda).
+        ja_tem_url = any(
+            u.rstrip('/').casefold() == pagina_url.rstrip('/').casefold()
+            for u in re.findall(r'https?://\S+', mensagem)
+        )
+        if not ja_tem_url:
+            mensagem += f"\n\n{pagina_url}"
     return mensagem.strip()
 
 
