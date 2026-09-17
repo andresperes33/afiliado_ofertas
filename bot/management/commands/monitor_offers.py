@@ -236,6 +236,14 @@ class Command(BaseCommand):
                 # Remove linhas vazias excessivas
                 modified_text = re.sub(r'\n\s*\n', '\n\n', modified_text)
 
+                # 2.5. Remove a primeira linha (gancho/anúncio do canal fonte):
+                # o título real do produto sempre aparece a partir da 2ª linha.
+                linhas_cortadas = modified_text.split('\n')
+                if len(linhas_cortadas) > 1:
+                    modified_text = '\n'.join(linhas_cortadas[1:]).lstrip('\n')
+                    modified_text = re.sub(r'\n\s*\n', '\n\n', modified_text)
+                modified_text = modified_text.strip()
+
                 # 3. Converte links de produtos
                 links = re.findall(r'(https?://\S+)', modified_text)
                 converted_any = False
