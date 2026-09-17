@@ -10,15 +10,20 @@ GRAPH_URL = "https://graph.facebook.com/v26.0"
 
 def _mensagem_post(texto, pagina_url=''):
     """Monta a mensagem do post: título + preço + link da oferta no site."""
+    # Ignora a 1ª linha (banner/gancho do anúncio): o título real do
+    # produto sempre fica a partir da 2ª linha.
+    linhas = (texto or '').split('\n')
+    a_partir_segunda = '\n'.join(linhas[1:]) if len(linhas) > 1 else (texto or '')
+
     try:
         from bot.services import _linha_titulo, _preco_do_texto
-        titulo = _linha_titulo(texto)[:150]
+        titulo = _linha_titulo(a_partir_segunda)[:150]
         preco = _preco_do_texto(texto)
     except Exception:
         titulo = ''
         preco = ''
 
-    mensagem = (titulo or texto or '').strip()
+    mensagem = (titulo or a_partir_segunda or '').strip()
     if not mensagem:
         mensagem = "Oferta imperdível"
     if preco:
