@@ -244,6 +244,18 @@ class Command(BaseCommand):
                     modified_text = re.sub(r'\n\s*\n', '\n\n', modified_text)
                 modified_text = modified_text.strip()
 
+                # 2.6. Trava de texto repetido: se a mesma oferta (mesmo texto
+                #     e valor) já foi capturada nos últimos 10 minutos, ignora.
+                try:
+                    from bot.services import texto_oferta_duplicada_recente, registrar_texto_oferta
+                    oferta_atual = modified_text
+                    if await asyncio.to_thread(texto_oferta_duplicada_recente, oferta_atual):
+                        logger.info("⏭️ Oferta ignorada (mesmo texto/valor capturado nos últimos 10 min)")
+                        return False
+                    await asyncio.to_thread(registrar_texto_oferta, oferta_atual)
+                except Exception as txt_trav_err:
+                    logger.warning(f"⚠️ Erro na trava de texto repetido: {txt_trav_err}")
+
                 # 3. Converte links de produtos
                 links = re.findall(r'(https?://\S+)', modified_text)
                 converted_any = False

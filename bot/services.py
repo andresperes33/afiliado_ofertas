@@ -1035,6 +1035,10 @@ def save_promo_to_db(texto, photo_path=None, fonte='zFinnY', url_chave=None):
 _IMAGEM_CACHE: dict = {}
 _IMAGEM_JANELA_SEGUNDOS = 180  # 3 minutos
 
+# Trava de texto repetido (mesma oferta com mesmo texto e valor)
+_TEXTO_CACHE: dict = {}
+_TEXTO_JANELA_SEGUNDOS = 600  # 10 minutos
+
 
 def _hash_imagem(photo_path):
     """Calcula MD5 do arquivo de imagem. Retorna '' se não for possível."""
@@ -1104,6 +1108,38 @@ def registrar_imagem_capturada(photo_path):
     chave = _hash_imagem(photo_path)
     if chave:
         _IMAGEM_CACHE[chave] = time.time()
+
+
+def _chave_texto_oferta(texto):
+    """
+    Gera uma chave estável para a oferta: 'título + preço'.
+    Remove emojis, normaliza espaços e caixa baixa, então calcula o hash MD5.
+    O preço fica embutido no texto, então a chave muda se o valor mudar.
+    """
+    t = texto or ''
+    t = re.sub(r'[^\w\s.,!?%$€£]', '', t)          # remove emojis/símbolos
+    t = re.sub(r'\s+', ' ', t).strip().casefold()   # normaliza espaços e caixa
+    return hashlib.md5(t.encode('utf-8')).hexdigest()
+
+
+def texto_oferta_duplicada_recente(texto):
+    """
+    Retorna True se uma oferta com o MESMO texto e valor já foi capturada nos
+    últimos 10 minutos. Ignora caso exista uma mais recente.
+    """
+    if not texto:
+        return False
+    chave = _chave_texto_oferta(texto)
+    agora = time.time()
+    return chave in _TEXTO_CACHE and agora - _TEXTO_CACHE[chave] <= _TEXTO_JANELA_SEGUNDOS
+
+
+def registrar_texto_oferta(texto):
+    """Guarda o 'título+preço' da oferta no cache para as próximas capturas."""
+    if not texto:
+        return
+    chave = _chave_texto_oferta(texto)
+    _TEXTO_CACHE[chave] = time.time()
 
 
 def get_product_info(url):
