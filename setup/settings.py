@@ -205,6 +205,10 @@ WHATSAPP_GROUP_JID = os.getenv('WHATSAPP_GROUP_JID') or ''
 # Instagram Stories Settings
 IG_ACCESS_TOKEN = os.getenv('IG_ACCESS_TOKEN')
 IG_USER_ID = os.getenv('IG_USER_ID')
+
+# Facebook (Página / Grupo) Settings
+FB_ACCESS_TOKEN = os.getenv('FB_ACCESS_TOKEN')
+FB_PAGE_ID = os.getenv('FB_PAGE_ID')
 # Contas adicionais de Instagram (para postar em mais de um perfil).
 # Formato: 'token1|user_id1,token2|user_id2' — separados por vírgula; cada
 # conta separa token e user_id por '|'.

@@ -516,6 +516,47 @@ class Command(BaseCommand):
                 except Exception as ig_err:
                     logger.error(f"❌ Erro Instagram: {ig_err}")
 
+                # ─── Publica na Página do Facebook ─────────────────────────
+                try:
+                    from bot.facebook_poster import post_facebook
+                    from bot.story_gate import pode_publicar_story, registrar_publicacao
+
+                    categoria_oferta = None
+                    if promo_id:
+                        try:
+                            cat = Promo.objects.filter(pk=promo_id).values_list('categoria', flat=True).first()
+                            if cat:
+                                categoria_oferta = cat
+                        except Exception as cat_err:
+                            logger.warning(f"⚠️ Erro ao obter categoria da promo: {cat_err}")
+                    if not categoria_oferta:
+                        try:
+                            from bot.classifier import detectar_categoria
+                            from bot.services import _linha_titulo
+                            categoria_oferta = detectar_categoria(
+                                modified_text, titulo=_linha_titulo(modified_text)
+                            )
+                        except Exception as cat_err2:
+                            logger.warning(f"⚠️ Erro ao detectar categoria da oferta: {cat_err2}")
+
+                    if categoria_oferta == 'cupom':
+                        logger.info("⏸️ Facebook não publicado: promoção da categoria 'cupom'.")
+                    else:
+                        permitido_fb, motivo_fb = await asyncio.to_thread(
+                            pode_publicar_story, chave='ultima_publicacao_fb'
+                        )
+                        if not permitido_fb:
+                            logger.info(f"⏸️ Facebook adiado ({motivo_fb}). Promo segue salva no banco e no Telegram.")
+                        else:
+                            publicou_fb = await asyncio.to_thread(post_facebook, modified_text, photo_path, pagina_url)
+                            if publicou_fb:
+                                await asyncio.to_thread(registrar_publicacao, chave='ultima_publicacao_fb')
+                                logger.info("📣 Oferta publicada no Facebook.")
+                            else:
+                                logger.info("ℹ️ Facebook: nada publicado (não configurado ou falhou).")
+                except Exception as fb_err:
+                    logger.error(f"❌ Erro Facebook: {fb_err}")
+
                 # ─── Limpa foto após 90s ─────────────────────────────────────
                 if photo_path:
                     async def cleanup(path):
