@@ -1134,15 +1134,15 @@ _TEXTO_JANELA_SEGUNDOS = 600  # 10 minutos
 
 def _chave_texto_oferta(texto):
     """
-    Gera uma chave estável para a oferta.
+    Gera a chave principal da oferta: 'título normalizado + preço'.
 
-    Quando há LINK de produto, a chave é apenas o link normalizado: repostagens
-    do MESMO produto (mesmo link), mesmo com redação/preço diferente ou sem
-    valor numa das mensagens, geram a mesma chave — ex.: a mensagem só com o
-    título e a mensagem com o preço, ambas com 's.click.ali.com/x'.
+    O título e o preço são limpos de caracteres especiais/emojis e caixa
+    baixa, então duas redações do MESMO produto com o MESMO valor geram a
+    mesma chave (ex.: 'Body Splash Cheiro de Homem (200ml)' + 'R$ 59,42'
+    vs 'Body Splash Cheiro de Homem 200ml' + 'R$ 59,42').
 
-    Quando NÃO há link, usa 'título normalizado + preço', ignorando caracteres
-    especiais, emojis e maiúsculas em tudo que entra na chave.
+    NÃO usa o link: o canal costuma trocar parâmetros de rastreio a cada
+    postagem, então links "diferentes" ainda são o mesmo produto.
     """
     texto = texto or ''
     preco = ''
@@ -1150,24 +1150,6 @@ def _chave_texto_oferta(texto):
         preco = _preco_do_texto(texto)
     except Exception:
         pass
-
-    # 1) Link de produto: identificador mais confiável para repostagens.
-    link_base = ''
-    for url in re.findall(r'https?://\S+', texto):
-        baixa_url = url.casefold()
-        if 'awin1.com' in baixa_url or 'tidd.ly' in baixa_url:
-            url_limpa = url
-        else:
-            url_limpa = url.split('?')[0].rstrip('/')
-        url_limpa = url_limpa.replace('https://', '').replace('http://', '')
-        url_limpa = re.sub(r'[^\w]', ' ', url_limpa)
-        url_limpa = re.sub(r'\s+', ' ', url_limpa).strip()
-        if url_limpa:
-            link_base = url_limpa
-            break
-
-    if link_base:
-        return hashlib.md5(link_base.casefold().encode('utf-8')).hexdigest()
 
     titulo = ''
     try:
@@ -1181,19 +1163,50 @@ def _chave_texto_oferta(texto):
     return hashlib.md5(chave_bruta.encode('utf-8')).hexdigest()
 
 
+def _chave_link_oferta(texto):
+    """
+    Chave secundária baseada no link de produto (normalizado). Usada apenas
+    quando o título/preço não representam o mesmo produto, ex.: uma mensagem
+    tem só o título e a outra só o preço, mas compartilham o link.
+    """
+    texto = texto or ''
+    for url in re.findall(r'https?://\S+', texto):
+        baixa_url = url.casefold()
+        if 'awin1.com' in baixa_url or 'tidd.ly' in baixa_url:
+            url_limpa = url
+        else:
+            url_limpa = url.split('?')[0].rstrip('/')
+        url_limpa = url_limpa.replace('https://', '').replace('http://', '')
+        url_limpa = re.sub(r'[^\w]', ' ', url_limpa)
+        url_limpa = re.sub(r'\s+', ' ', url_limpa).strip()
+        if len(url_limpa) >= 8:  # ignora URLs curtas demais (telegram etc.)
+            return hashlib.md5(url_limpa.casefold().encode('utf-8')).hexdigest()
+    return None
+
+
+def _chaves_texto_oferta(texto):
+    """Todas as chaves de comparação da oferta (principal título+preço + link)."""
+    chaves = [_chave_texto_oferta(texto)]
+    link = _chave_link_oferta(texto)
+    if link:
+        chaves.append(link)
+    return chaves
+
+
 def texto_oferta_duplicada_recente(texto):
     """
-    Retorna True se uma oferta com o MESMO texto e valor já foi capturada nos
-    últimos 10 minutos. Checa cache em memória e, se o processo reiniciar,
-    faz fallback no banco (BotConfig) para sobreviver ao restart.
+    Retorna True se uma oferta com o MESMO título+preço (ou mesmo link) já foi
+    capturada nos últimos 10 minutos. Checa cache em memória e, se o processo
+    reiniciar, faz fallback no banco (BotConfig) para sobreviver ao restart.
     """
     if not texto:
         return False
-    chave = _chave_texto_oferta(texto)
+    chaves = _chaves_texto_oferta(texto)
     agora = time.time()
-    # 1) Cache em memória (fast path)
-    if chave in _TEXTO_CACHE and agora - _TEXTO_CACHE[chave] <= _TEXTO_JANELA_SEGUNDOS:
-        return True
+    # 1) Cache em memória (fast path) — qualquer uma das chaves bate
+    for chave in chaves:
+        if chave in _TEXTO_CACHE and agora - _TEXTO_CACHE[chave] <= _TEXTO_JANELA_SEGUNDOS:
+            return True
     # 2) Fallback: banco BotConfig (sobrevive restart)
     try:
         from datetime import datetime
@@ -1202,7 +1215,10 @@ def texto_oferta_duplicada_recente(texto):
         raw = BotConfig.get('ultima_oferta_duplicada', '')
         if raw:
             dados = json.loads(raw)
-            if dados.get('chave') == chave:
+            salvas = dados.get('chaves') or []
+            if not salvas and dados.get('chave'):
+                salvas = [dados['chave']]  # compatibilidade com formato antigo
+            if any(c in salvas for c in chaves):
                 visto = datetime.fromisoformat(dados['quando'])
                 desde = (datetime.now() - visto).total_seconds()
                 if desde <= _TEXTO_JANELA_SEGUNDOS:
@@ -1213,19 +1229,21 @@ def texto_oferta_duplicada_recente(texto):
 
 
 def registrar_texto_oferta(texto):
-    """Guarda o 'título+preço' da oferta no cache E no banco."""
+    """Guarda as chaves da oferta (título+preço e link) no cache E no banco."""
     if not texto:
         return
-    chave = _chave_texto_oferta(texto)
-    _TEXTO_CACHE[chave] = time.time()
+    chaves = _chaves_texto_oferta(texto)
+    agora = time.time()
+    for chave in chaves:
+        _TEXTO_CACHE[chave] = agora
     try:
         from datetime import datetime
         from bot.models import BotConfig
         import json
         BotConfig.set('ultima_oferta_duplicada', json.dumps({
-            'chave': chave,
+            'chaves': chaves,
             'quando': datetime.now().isoformat()
-        }))
+        }, ensure_ascii=False))
     except Exception:
         pass
 
