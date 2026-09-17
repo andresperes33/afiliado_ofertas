@@ -215,7 +215,7 @@ class Command(BaseCommand):
                     return False
 
                 # ─── Converte links e processa texto ─────────────────────────
-                from bot.services import convert_to_affiliate_link, send_whatsapp_message, strip_promo_footer, _RODAPE_CANAIS_TEXTO, normaliza_emoji_inicial, remover_emojis_exceto_joinha
+                from bot.services import convert_to_affiliate_link, send_whatsapp_message, strip_promo_footer, _RODAPE_CANAIS_TEXTO, limpar_texto_query
 
                 channel_name = getattr(settings, 'PERSONAL_CHANNEL_NAME', 'Seu Canal')
 
@@ -232,7 +232,8 @@ class Command(BaseCommand):
                 # Substitui links do Linktree pelo link personalizado
                 modified_text = re.sub(r'https?://linktr\.ee/\S+', 'https://links.andreindica.com.br/', modified_text)
                 modified_text = strip_promo_footer(modified_text)
-                modified_text = normaliza_emoji_inicial(modified_text)
+                # Emojis originais do canal são PRESERVADOS em todos os canais
+                # (não força 👍, não remove emojis da postagem capturada).
                 # Remove linhas vazias excessivas
                 modified_text = re.sub(r'\n\s*\n', '\n\n', modified_text)
 
@@ -434,7 +435,7 @@ class Command(BaseCommand):
                     # Chave estável baseada no link BRUTO + preço (msg_text),
                     # para não ignorar ofertas novas do mesmo produto com preço/cupom diferente.
                     chave_estavel = _chave_dedup(msg_text)
-                    texto_para_db = remover_emojis_exceto_joinha(modified_text)
+                    texto_para_db = limpar_texto_query(modified_text)
                     promo_id = await asyncio.to_thread(save_promo_to_db, texto_para_db, photo_path, source_channel, chave_estavel)
                     logger.info("💾 Promo salva no banco de dados")
                 except Exception as db_err:
@@ -456,12 +457,12 @@ class Command(BaseCommand):
 
                 # ─── Envia para o Telegram ───────────────────────────────────
                 try:
-                    base_tg = remover_emojis_exceto_joinha(modified_text)
+                    base_tg = limpar_texto_query(modified_text)
                     texto_telegram = base_tg + _RODAPE_CANAIS_TEXTO
                     if photo_path and os.path.exists(photo_path):
                         limite = 1024 - len(_RODAPE_CANAIS_TEXTO)
                         base_cortado = modified_text[:max(limite, 0)]
-                        caption = remover_emojis_exceto_joinha(base_cortado) + _RODAPE_CANAIS_TEXTO
+                        caption = limpar_texto_query(base_cortado) + _RODAPE_CANAIS_TEXTO
                         await client.send_file(group_id, photo_path, caption=caption[:1024])
                         logger.info("✅ Enviado para Telegram (com foto)")
                     else:

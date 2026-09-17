@@ -1950,6 +1950,22 @@ def normaliza_emoji_inicial(texto):
     return '👍 ' + t
 
 
+def limpar_texto_query(texto):
+    """Limpa espaços/linhas do texto PRESERVANDO os emojis originais.
+
+    Usada no lugar de remover_emojis_exceto_joinha quando queremos manter
+    os emojis da postagem original do canal em todos os canais. Não remove
+    nenhum caractere (inclui variation selectors \uFE0F / ZWJ), só ajusta
+    espaços e quebras de linha.
+    """
+    if not texto:
+        return texto
+    tmp = re.sub(r'[ \t]+', ' ', texto)
+    tmp = re.sub(r' *\n *', '\n', tmp)
+    tmp = re.sub(r'\n{3,}', '\n\n', tmp)
+    return tmp.strip()
+
+
 def remover_emojis_exceto_joinha(texto):
     if not texto:
         return texto
@@ -2015,7 +2031,8 @@ async def process_offer_to_group(bot_app, text, photo=None):
     # Substitui links do Linktree pelo link personalizado
     modified_text = re.sub(r'https?://linktr\.ee/\S+', 'https://links.andreindica.com.br/', modified_text)
     modified_text = strip_promo_footer(modified_text)
-    modified_text = normaliza_emoji_inicial(modified_text)
+    # Emojis originais do canal são PRESERVADOS (não força 👍).
+    # modified_text mantém os emojis da postagem original capturada.
 
     has_aliexpress = False
     for link in links:
@@ -2155,7 +2172,7 @@ async def process_offer_to_group(bot_app, text, photo=None):
         final_image_to_send = None
         promo_image = None  # Imagem final (path local ou URL) para salvar no site
 
-        texto_telegram = remover_emojis_exceto_joinha(modified_text)
+        texto_telegram = limpar_texto_query(modified_text)
         if photo:
             await bot.send_photo(
                 chat_id=group_id,
