@@ -486,14 +486,18 @@ def _chave_produto(titulo):
 
 def _preco_do_texto(texto):
     """
-    Extrai o preço real do produto, normalizado.
+    Extrai o preço real do produto, normalizado (sempre 'R$ X,XX').
 
     Prioriza preços rotulados ('Valor:', 'Preço:', 'Por:', 'R$ no link')
     e ignora valores de CUPOM (ex.: 'cupom de R$90 OFF', 'R$90 de desconto'),
     evitando mostrar o desconto como se fosse o preço do produto.
+    Cobre vários formatos: 'R$ 89,90', 'R$89,90', 'R$' numa linha e '89,90'
+    na seguinte, e número solto '89,90' sem o símbolo.
     """
     texto = texto or ''
-    linhas = texto.split('\n')
+    # Remove espaços em volta de vírgula/ponto (ex.: '89 , 90' -> '89,90')
+    texto_norm = re.sub(r'\s*([.,])\s*', r'\1', texto)
+    linhas = texto_norm.split('\n')
 
     # 1) Preço rotulado explicitamente (pulando linhas de cupom/desconto)
     for linha in linhas:
@@ -503,7 +507,7 @@ def _preco_do_texto(texto):
         if any(rotulo in baixa for rotulo in ('valor:', 'preço:', 'preco:', 'por apenas', 'por:', 'preco final')):
             m = re.search(r'R\$\s*[\d.,]+', linha)
             if m:
-                return m.group(0).strip()
+                return _limpar_preco(m.group(0))
 
     # 2) Primeiro R$ que NÃO esteja associado a cupom/desconto
     for linha in linhas:
@@ -524,13 +528,50 @@ def _preco_do_texto(texto):
             continue
         m = re.search(r'R\$\s*[\d.,]+', linha)
         if m:
-            return m.group(0).strip()
+            return _limpar_preco(m.group(0))
 
-    # 3) Fallback: primeiro R$ do texto inteiro
-    m = re.search(r'R\$\s*[\d.,]+', texto)
+    # 3) 'R$' numa linha e o número na seguinte (ex.: 'R$\n89,90')
+    m = re.search(r'R\$\s*\n+\s*(\d[\d.,]*)', texto_norm)
     if m:
-        return m.group(0).strip()
+        return 'R$ ' + _limpar_numero(m.group(1))
+
+    # 4) Fallback: primeiro R$ do texto inteiro
+    m = re.search(r'R\$\s*[\d.,]+', texto_norm)
+    if m:
+        return _limpar_preco(m.group(0))
+
+    # 5) Número solto no formato brasileiro em linha própria (ex.: '89,20'),
+    #    sem o símbolo R$ — retorna sempre com 'R$ ' na frente.
+    for linha in linhas:
+        baixa = linha.casefold()
+        if any(palavra in baixa for palavra in ('cupom', 'off', 'desconto', 'economize', 'frete', 'comissao', 'cobra')):
+            continue
+        if baixa.lstrip().startswith('-'):
+            continue
+        if re.search(r'^\s*(?:caiu|quase|baixou|barateou|despencou|deixa|agarra|sobe|limite)\b', baixa):
+            continue
+        if re.search(r'\b(?:x|vezes)\s*sem\s*juros\b', baixa):
+            continue
+        tira = linha.strip()
+        if len(tira) > 15:
+            continue
+        m = re.search(r'\d{1,3}(?:\.\d{3})*(?:,\d{1,2})?', tira)
+        if m and re.match(r'^\d[\d\s.,]*$', tira):
+            return 'R$ ' + _limpar_numero(m.group(0))
     return ''
+
+
+def _limpar_preco(raw):
+    """Remove espaços duplicados do trecho (ex.: 'R$  89,90' -> 'R$ 89,90')."""
+    limpo = re.sub(r'\s+', ' ', (raw or '').strip())
+    # Garante espaço entre o 'R$' e o número (ex.: 'R$89,90' -> 'R$ 89,90')
+    limpo = re.sub(r'^R\$(?=\d)', 'R$ ', limpo)
+    return limpo
+
+
+def _limpar_numero(num):
+    """Limpa o número extraído (ex.: '89 , 90' -> '89,90')."""
+    return _limpar_preco(num).replace(' ', '')
 
 
 # Linhas que devem ser ignoradas ao montar o título do produto
