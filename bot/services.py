@@ -504,16 +504,17 @@ def _preco_do_texto(texto):
     #    Também cobre linhas onde o preço é 'por R$ Y' sozinho (ex.: 'por
     #    apenas R$ 59,42' já entra no passo 2; aqui evitamos linha sem 'DE').
     m_de_por = re.search(
-        r'\bde\s+R\$\s*[\d.,]+\b[^.\n]*?\bpor\s+R\$\s*[\d.,]+',
+        r'\bde\s*:?\s*R\$\s*[\d.,]+\b[^.\n]*?\bpor\s*:?\s*R\$\s*[\d.,]+',
         texto_norm, re.IGNORECASE
     )
     if not m_de_por:
-        # Varre linha a linha: 'DE R$ 99,90| POR 59,42' (por sem R$, com DE)
+        # Varre linha a linha: 'De: R$736,00 | Por: R$213,00' e
+        # 'DE R$ 99,90| POR 59,42' (por sem R$)
         for linha in linhas:
             baixa = linha.casefold()
-            if not re.search(r'\bde\s*R\$\s*[\d.,]+', baixa):
+            if not re.search(r'\bde\s*:?\s*R\$\s*[\d.,]+', baixa):
                 continue
-            m_por_sem_r = re.search(r'\bpor\s+[\d.,]+', baixa)
+            m_por_sem_r = re.search(r'\bpor\s*:?\s*[\d.,]+', baixa)
             if m_por_sem_r:
                 m_val_tmp = re.search(r'[\d.,]+', m_por_sem_r.group(0))
                 if m_val_tmp:
