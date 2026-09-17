@@ -530,17 +530,32 @@ def _preco_do_texto(texto):
         if m:
             return _limpar_preco(m.group(0))
 
-    # 3) 'R$' numa linha e o número na seguinte (ex.: 'R$\n89,90')
+    # 3) Preço informado sem 'R$' no formato 'DE X | POR Y' (ex.: 'DE 2.009
+    #    | POR 1.701,08 no Pix'): o valor REAL é o que vem depois de 'POR'.
+    for linha in linhas:
+        baixa = linha.casefold()
+        if any(palavra in baixa for palavra in ('cupom', 'off', 'desconto', 'economize')):
+            continue
+        if baixa.lstrip().startswith('-'):
+            continue
+        if not re.search(r'\bde\b', baixa):
+            continue
+        m_por = re.search(r'\bpor\s+([\d.,]+)', baixa)
+        if m_por:
+            numero_br = _limpar_numero(m_por.group(1).replace('.', '').replace(',', '.'))
+            return _formatar_preco_br(numero_br)
+
+    # 4) 'R$' numa linha e o número na seguinte (ex.: 'R$\n89,90')
     m = re.search(r'R\$\s*\n+\s*(\d[\d.,]*)', texto_norm)
     if m:
         return 'R$ ' + _limpar_numero(m.group(1))
 
-    # 4) Fallback: primeiro R$ do texto inteiro
+    # 5) Fallback: primeiro R$ do texto inteiro
     m = re.search(r'R\$\s*[\d.,]+', texto_norm)
     if m:
         return _limpar_preco(m.group(0))
 
-    # 5) Número solto no formato brasileiro em linha própria (ex.: '89,20'),
+    # 6) Número solto no formato brasileiro em linha própria (ex.: '89,20'),
     #    sem o símbolo R$ — retorna sempre com 'R$ ' na frente.
     for linha in linhas:
         baixa = linha.casefold()
@@ -559,6 +574,16 @@ def _preco_do_texto(texto):
         if m and re.match(r'^\d[\d\s.,]*$', tira):
             return 'R$ ' + _limpar_numero(m.group(0))
     return ''
+
+
+def _formatar_preco_br(valor_float_ou_str):
+    """Formata um valor decimal como preço brasileiro (ex.: 1701.08 -> 'R$ 1.701,08')."""
+    try:
+        valor = float(valor_float_ou_str)
+    except (TypeError, ValueError):
+        return ''
+    # Arredonda para 2 casas e formata com ponto de milhar e vírgula decimal
+    return f"R$ {valor:,.2f}".replace(',', '§').replace('.', ',').replace('§', '.')
 
 
 def _limpar_preco(raw):
@@ -1153,34 +1178,69 @@ def registrar_imagem_capturada(photo_path):
 
 def _chave_texto_oferta(texto):
     """
-    Gera uma chave estável para a oferta: 'título + preço'.
-    Remove emojis, normaliza espaços e caixa baixa, então calcula o hash MD5.
-    O preço fica embutido no texto, então a chave muda se o valor mudar.
+    Gera uma chave estável para a oferta: 'título + preço' extraídos do texto.
+    Dois textos com o MESMO produto e MESMO valor (mesmo que a redação difira)
+    geram a mesma chave — ex.: 'Smart TV HQ 50" 4K QLED' + 'R$ 1.701,08'.
+    Se o valor mudar, a chave muda.
     """
-    t = texto or ''
-    t = re.sub(r'[^\w\s.,!?%$€£]', '', t)          # remove emojis/símbolos
-    t = re.sub(r'\s+', ' ', t).strip().casefold()   # normaliza espaços e caixa
-    return hashlib.md5(t.encode('utf-8')).hexdigest()
+    titulo = ''
+    preco = ''
+    try:
+        titulo = _linha_titulo(texto or '')
+        preco = _preco_do_texto(texto or '')
+    except Exception:
+        pass
+    chave_bruta = f"{titulo} | {preco}".strip().casefold()
+    return hashlib.md5(chave_bruta.encode('utf-8')).hexdigest()
 
 
 def texto_oferta_duplicada_recente(texto):
     """
     Retorna True se uma oferta com o MESMO texto e valor já foi capturada nos
-    últimos 10 minutos. Ignora caso exista uma mais recente.
+    últimos 10 minutos. Checa cache em memória e, se o processo reiniciar,
+    faz fallback no banco (BotConfig) para sobreviver ao restart.
     """
     if not texto:
         return False
     chave = _chave_texto_oferta(texto)
     agora = time.time()
-    return chave in _TEXTO_CACHE and agora - _TEXTO_CACHE[chave] <= _TEXTO_JANELA_SEGUNDOS
+    # 1) Cache em memória (fast path)
+    if chave in _TEXTO_CACHE and agora - _TEXTO_CACHE[chave] <= _TEXTO_JANELA_SEGUNDOS:
+        return True
+    # 2) Fallback: banco BotConfig (sobrevive restart)
+    try:
+        from datetime import datetime
+        from bot.models import BotConfig
+        import json
+        raw = BotConfig.get('ultima_oferta_duplicada', '')
+        if raw:
+            dados = json.loads(raw)
+            if dados.get('chave') == chave:
+                visto = datetime.fromisoformat(dados['quando'])
+                desde = (datetime.now() - visto).total_seconds()
+                if desde <= _TEXTO_JANELA_SEGUNDOS:
+                    return True
+    except Exception:
+        pass
+    return False
 
 
 def registrar_texto_oferta(texto):
-    """Guarda o 'título+preço' da oferta no cache para as próximas capturas."""
+    """Guarda o 'título+preço' da oferta no cache E no banco."""
     if not texto:
         return
     chave = _chave_texto_oferta(texto)
     _TEXTO_CACHE[chave] = time.time()
+    try:
+        from datetime import datetime
+        from bot.models import BotConfig
+        import json
+        BotConfig.set('ultima_oferta_duplicada', json.dumps({
+            'chave': chave,
+            'quando': datetime.now().isoformat()
+        }))
+    except Exception:
+        pass
 
 
 def get_product_info(url):
