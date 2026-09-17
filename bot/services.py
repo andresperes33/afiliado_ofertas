@@ -499,7 +499,37 @@ def _preco_do_texto(texto):
     texto_norm = re.sub(r'\s*([.,])\s*', r'\1', texto)
     linhas = texto_norm.split('\n')
 
-    # 1) Preço rotulado explicitamente (pulando linhas de cupom/desconto)
+    # 1) Preço no padrão 'DE R$ X por R$ Y' (ou 'de R$X por R$Y'): o valor REAL
+    #    é o que vem depois de 'por'. Ex.: 'De R$ 99,90 por R$ 59,42 no Pix'.
+    #    Também cobre linhas onde o preço é 'por R$ Y' sozinho (ex.: 'por
+    #    apenas R$ 59,42' já entra no passo 2; aqui evitamos linha sem 'DE').
+    m_de_por = re.search(
+        r'\bde\s+R\$\s*[\d.,]+\b[^.\n]*?\bpor\s+R\$\s*[\d.,]+',
+        texto_norm, re.IGNORECASE
+    )
+    if not m_de_por:
+        # Varre linha a linha: 'DE R$ 99,90| POR 59,42' (por sem R$, com DE)
+        for linha in linhas:
+            baixa = linha.casefold()
+            if not re.search(r'\bde\s*R\$\s*[\d.,]+', baixa):
+                continue
+            m_por_sem_r = re.search(r'\bpor\s+[\d.,]+', baixa)
+            if m_por_sem_r:
+                m_val_tmp = re.search(r'[\d.,]+', m_por_sem_r.group(0))
+                if m_val_tmp:
+                    return _formatar_preco_br(
+                        _limpar_numero(m_val_tmp.group(0).replace('.', '').replace(',', '.'))
+                    )
+    else:
+        m_val = re.search(r'R\$\s*[\d.,]+', m_de_por.group(0))
+        # pega o ÚLTIMO R$ do trecho (o 'por R$ Y')
+        ultimo = list(re.finditer(r'R\$\s*[\d.,]+', m_de_por.group(0)))
+        if ultimo:
+            m_val = ultimo[-1]
+        if m_val:
+            return _limpar_preco(m_val.group(0))
+
+    # 2) Preço rotulado explicitamente (pulando linhas de cupom/desconto)
     for linha in linhas:
         baixa = linha.casefold()
         if any(palavra in baixa for palavra in ('cupom', 'off', 'desconto', 'economize')):
@@ -509,7 +539,7 @@ def _preco_do_texto(texto):
             if m:
                 return _limpar_preco(m.group(0))
 
-    # 2) Primeiro R$ que NÃO esteja associado a cupom/desconto
+    # 3) Primeiro R$ que NÃO esteja associado a cupom/desconto
     for linha in linhas:
         baixa = linha.casefold()
         if any(palavra in baixa for palavra in ('cupom', 'off', 'desconto', 'economize', 'use o código', 'use o codigo')):
@@ -1104,19 +1134,50 @@ _TEXTO_JANELA_SEGUNDOS = 600  # 10 minutos
 
 def _chave_texto_oferta(texto):
     """
-    Gera uma chave estável para a oferta: 'título + preço' extraídos do texto.
-    Dois textos com o MESMO produto e MESMO valor (mesmo que a redação difira)
-    geram a mesma chave — ex.: 'Smart TV HQ 50" 4K QLED' + 'R$ 1.701,08'.
-    Se o valor mudar, a chave muda.
+    Gera uma chave estável para a oferta.
+
+    Quando há LINK de produto, a chave é apenas o link normalizado: repostagens
+    do MESMO produto (mesmo link), mesmo com redação/preço diferente ou sem
+    valor numa das mensagens, geram a mesma chave — ex.: a mensagem só com o
+    título e a mensagem com o preço, ambas com 's.click.ali.com/x'.
+
+    Quando NÃO há link, usa 'título normalizado + preço', ignorando caracteres
+    especiais, emojis e maiúsculas em tudo que entra na chave.
     """
-    titulo = ''
+    texto = texto or ''
     preco = ''
     try:
-        titulo = _linha_titulo(texto or '')
-        preco = _preco_do_texto(texto or '')
+        preco = _preco_do_texto(texto)
     except Exception:
         pass
-    chave_bruta = f"{titulo} | {preco}".strip().casefold()
+
+    # 1) Link de produto: identificador mais confiável para repostagens.
+    link_base = ''
+    for url in re.findall(r'https?://\S+', texto):
+        baixa_url = url.casefold()
+        if 'awin1.com' in baixa_url or 'tidd.ly' in baixa_url:
+            url_limpa = url
+        else:
+            url_limpa = url.split('?')[0].rstrip('/')
+        url_limpa = url_limpa.replace('https://', '').replace('http://', '')
+        url_limpa = re.sub(r'[^\w]', ' ', url_limpa)
+        url_limpa = re.sub(r'\s+', ' ', url_limpa).strip()
+        if url_limpa:
+            link_base = url_limpa
+            break
+
+    if link_base:
+        return hashlib.md5(link_base.casefold().encode('utf-8')).hexdigest()
+
+    titulo = ''
+    try:
+        titulo = _linha_titulo(texto)
+    except Exception:
+        pass
+    titulo_norm = re.sub(r'[^\w\s]', ' ', titulo)
+    titulo_norm = re.sub(r'\s+', ' ', titulo_norm).strip().casefold()
+
+    chave_bruta = f"{titulo_norm} | {preco}".strip().casefold()
     return hashlib.md5(chave_bruta.encode('utf-8')).hexdigest()
 
 
